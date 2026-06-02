@@ -1,504 +1,504 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="utf-8">
-  <title>学习体验问卷 | VR Embodied Learning</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      min-height: 100vh;
-      color: #e0e0e0;
-      padding: 40px 20px;
-    }
-
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .header h1 {
-      font-size: 1.8rem;
-      color: #ffffff;
-      margin-bottom: 10px;
-    }
-
-    .header p {
-      color: #a0aec0;
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #63b3ed;
-      margin-bottom: 20px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #2d3748;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 28px;
-      margin-bottom: 20px;
-      transition: border-color 0.2s;
-    }
-
-    .card:hover {
-      border-color: rgba(99,179,237,0.3);
-    }
-
-    .question-num {
-      font-size: 0.72rem;
-      color: #63b3ed;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 8px;
-    }
-
-    .question-text {
-      font-size: 1.0rem;
-      color: #e2e8f0;
-      line-height: 1.5;
-      margin-bottom: 6px;
-    }
-
-    .question-sub {
-      font-size: 0.82rem;
-      color: #718096;
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-
-    .likert-scale {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .scale-labels {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-
-    .scale-labels span {
-      font-size: 0.75rem;
-      color: #718096;
-    }
-
-    .likert-options {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-    }
-
-    .likert-options label {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .likert-options input[type="radio"] {
-      display: none;
-    }
-
-    .likert-btn {
-      width: 100%;
-      padding: 10px 4px;
-      border-radius: 8px;
-      border: 2px solid #2d3748;
-      background: #1a202c;
-      color: #a0aec0;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-align: center;
-      transition: all 0.15s;
-      cursor: pointer;
-    }
-
-    .likert-options input[type="radio"]:checked + .likert-btn {
-      border-color: #63b3ed;
-      background: rgba(99,179,237,0.15);
-      color: #63b3ed;
-      transform: scale(1.05);
-    }
-
-    .likert-options label:hover .likert-btn {
-      border-color: #4a5568;
-      background: #2d3748;
-    }
-
-    /* 前测/后测 tab */
-    .tab-bar {
-      display: flex;
-      gap: 0;
-      margin-bottom: 36px;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid #2d3748;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 14px;
-      background: #1a202c;
-      color: #718096;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-      background: rgba(99,179,237,0.15);
-      color: #63b3ed;
-    }
-
-    .vr-link-section {
-      text-align: center;
-      margin: 28px 0;
-      padding: 20px;
-      background: rgba(99,179,237,0.08);
-      border-radius: 12px;
-      border: 1px dashed rgba(99,179,237,0.3);
-    }
-
-    .vr-link-section p {
-      color: #a0aec0;
-      font-size: 0.88rem;
-      margin-bottom: 12px;
-    }
-
-    .btn-vr {
-      display: inline-block;
-      padding: 10px 24px;
-      background: linear-gradient(135deg, #3182ce, #2b6cb0);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: opacity 0.2s;
-    }
-
-    .btn-vr:hover { opacity: 0.85; }
-
-    .submit-section {
-      text-align: center;
-      margin-top: 36px;
-    }
-
-    .btn-submit {
-      padding: 14px 48px;
-      background: linear-gradient(135deg, #38a169, #2f855a);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-
-    .btn-submit:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    .toast {
-      position: fixed;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-80px);
-      background: #38a169;
-      color: white;
-      padding: 14px 28px;
-      border-radius: 10px;
-      font-weight: 600;
-      transition: transform 0.35s ease;
-      z-index: 1000;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .nav-links {
-      text-align: center;
-      margin-top: 32px;
-    }
-
-    .nav-links a {
-      color: #63b3ed;
-      text-decoration: none;
-      margin: 0 16px;
-      font-size: 0.88rem;
-    }
-
-    .nav-links a:hover { text-decoration: underline; }
-
-    .phase-hidden { display: none; }
-  </style>
-</head>
-<body>
-
-<div class="container">
-
-  <div class="header">
-    <h1>学习体验问卷</h1>
-    <p>本问卷测量您在VR环境中的<strong>临场感</strong>与<strong>学习投入度</strong><br>
-    采用7点李克特量表（1=完全不同意，7=完全同意）</p>
-  </div>
-
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <button class="tab-btn active" id="tab-pre" onclick="switchPhase('pre')">
-      前测 Pre-Survey
-    </button>
-    <button class="tab-btn" id="tab-post" onclick="switchPhase('post')">
-      后测 Post-Survey
-    </button>
-  </div>
-
-  <form id="survey-form">
-
-    <!-- ── 前测阶段 ── -->
-    <div id="phase-pre">
-
-      <p class="section-label">Section A · 进入VR前的基准测量</p>
-
-      <!-- Q1 -->
-      <div class="card">
-        <div class="question-num">Question 1 · Technology Familiarity</div>
-        <div class="question-text">我对VR（虚拟现实）技术比较熟悉</div>
-        <div class="question-sub">I am familiar with VR technology.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options" id="q1">
-          <label><input type="radio" name="q1" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q1" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q1" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q1" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q1" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q1" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q1" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-      <!-- Q2 -->
-      <div class="card">
-        <div class="question-num">Question 2 · Learning Motivation</div>
-        <div class="question-text">我对今天的学习内容感到期待和好奇</div>
-        <div class="question-sub">I feel motivated and curious about today's learning content.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options">
-          <label><input type="radio" name="q2" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q2" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q2" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q2" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q2" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q2" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q2" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-      <!-- 进入VR提示 -->
-      <div class="vr-link-section">
-        <p>完成前测后，请进入VR学习场景体验，结束后返回填写后测</p>
-        <a href="index.html" class="btn-vr" target="_blank">▶ 进入VR学习场景</a>
-      </div>
-
-    </div>
-
-    <!-- ── 后测阶段 ── -->
-    <div id="phase-post" class="phase-hidden">
-
-      <p class="section-label">Section B · Presence 临场感量表（基于Witmer & Singer 1998）</p>
-
-      <!-- Q3 -->
-      <div class="card">
-        <div class="question-num">Question 3 · Spatial Presence</div>
-        <div class="question-text">在VR体验中，我感觉自己真实存在于那个虚拟教室里</div>
-        <div class="question-sub">I felt a sense of being present in the virtual classroom.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options">
-          <label><input type="radio" name="q3" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q3" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q3" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q3" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q3" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q3" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q3" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-      <!-- Q4 -->
-      <div class="card">
-        <div class="question-num">Question 4 · Body Ownership</div>
-        <div class="question-text">我感觉虚拟手部像是我自己真实的手</div>
-        <div class="question-sub">The virtual hands felt like my own real hands.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options">
-          <label><input type="radio" name="q4" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q4" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q4" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q4" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q4" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q4" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q4" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-      <!-- Q5 -->
-      <div class="card">
-        <div class="question-num">Question 5 · Cognitive Engagement</div>
-        <div class="question-text">在VR场景中，我积极思考了学习卡片上的知识内容</div>
-        <div class="question-sub">I actively thought about the knowledge presented in the learning cards.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options">
-          <label><input type="radio" name="q5" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q5" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q5" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q5" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q5" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q5" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q5" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-      <!-- Q6 -->
-      <div class="card">
-        <div class="question-num">Question 6 · Emotional Engagement</div>
-        <div class="question-text">与传统学习方式相比，VR环境让我感到更投入、更有兴趣</div>
-        <div class="question-sub">Compared to traditional learning, the VR environment made me more engaged and interested.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options">
-          <label><input type="radio" name="q6" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q6" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q6" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q6" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q6" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q6" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q6" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-      <!-- Q7 -->
-      <div class="card">
-        <div class="question-num">Question 7 · Embodied Interaction</div>
-        <div class="question-text">通过空间移动和凝视交互，我更好地理解了"身体化认知"的含义</div>
-        <div class="question-sub">Spatial movement and gaze interaction helped me better understand embodied cognition.</div>
-        <div class="scale-labels">
-          <span>完全不同意</span><span>完全同意</span>
-        </div>
-        <div class="likert-options">
-          <label><input type="radio" name="q7" value="1"><span class="likert-btn">1</span></label>
-          <label><input type="radio" name="q7" value="2"><span class="likert-btn">2</span></label>
-          <label><input type="radio" name="q7" value="3"><span class="likert-btn">3</span></label>
-          <label><input type="radio" name="q7" value="4"><span class="likert-btn">4</span></label>
-          <label><input type="radio" name="q7" value="5"><span class="likert-btn">5</span></label>
-          <label><input type="radio" name="q7" value="6"><span class="likert-btn">6</span></label>
-          <label><input type="radio" name="q7" value="7"><span class="likert-btn">7</span></label>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="submit-section">
-      <button type="button" class="btn-submit" onclick="submitSurvey()">
-        提交问卷 Submit
-      </button>
-    </div>
-
-  </form>
-
-  <div class="nav-links">
-    <a href="index.html">← VR场景</a>
-    <a href="results.html">查看数据结果 →</a>
-  </div>
-
-</div>
-
-<div class="toast" id="toast">✓ 数据已保存，正在跳转到结果页...</div>
-
-<script>
-  let currentPhase = 'pre';
-
-  function switchPhase(phase) {
-    currentPhase = phase;
-    document.getElementById('phase-pre').classList.toggle('phase-hidden', phase !== 'pre');
-    document.getElementById('phase-post').classList.toggle('phase-hidden', phase !== 'post');
-    document.getElementById('tab-pre').classList.toggle('active', phase === 'pre');
-    document.getElementById('tab-post').classList.toggle('active', phase === 'post');
-  }
-
-  function submitSurvey() {
-    const form = document.getElementById('survey-form');
-    const data = {};
-    const questions = currentPhase === 'pre' ? ['q1','q2'] : ['q3','q4','q5','q6','q7'];
-
-    let allAnswered = true;
-    questions.forEach(q => {
-      const val = form.querySelector(`input[name="${q}"]:checked`);
-      if (!val) { allAnswered = false; }
-      else { data[q] = parseInt(val.value); }
-    });
-
-    if (!allAnswered) {
-      alert('请回答所有题目后再提交');
-      return;
-    }
-
-    // 读取已有数据，合并保存
-    const existing = JSON.parse(localStorage.getItem('vr-survey-data') || '{}');
-    const merged = Object.assign(existing, data);
-    merged[`${currentPhase}-timestamp`] = new Date().toISOString();
-    localStorage.setItem('vr-survey-data', JSON.stringify(merged));
-
-    // 显示toast
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-
-    setTimeout(() => {
-      if (currentPhase === 'pre') {
-        switchPhase('post');
-        toast.classList.remove('show');
-      } else {
-        window.location.href = 'results.html';
-      }
-    }, 1800);
-  }
-</script>
-
-</body>
-</html>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="utf-8">  
+  <title>Learning Experience Survey | VR Embodied Learning</title>  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <style>  
+    * { box-sizing: border-box; margin: 0; padding: 0; }  
+
+    body {  
+      font-family: 'Helvetica Neue', Arial, sans-serif;  
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);  
+      min-height: 100vh;  
+      color: #e0e0e0;  
+      padding: 40px 20px;  
+    }  
+
+    .container {  
+      max-width: 720px;  
+      margin: 0 auto;  
+    }  
+
+    .header {  
+      text-align: center;  
+      margin-bottom: 48px;  
+    }  
+
+    .header h1 {  
+      font-size: 1.8rem;  
+      color: #ffffff;  
+      margin-bottom: 10px;  
+    }  
+
+    .header p {  
+      color: #a0aec0;  
+      font-size: 0.95rem;  
+      line-height: 1.6;  
+    }  
+
+    .section-label {  
+      font-size: 0.75rem;  
+      letter-spacing: 0.12em;  
+      text-transform: uppercase;  
+      color: #63b3ed;  
+      margin-bottom: 20px;  
+      padding-bottom: 8px;  
+      border-bottom: 1px solid #2d3748;  
+    }  
+
+    .card {  
+      background: rgba(255,255,255,0.05);  
+      border: 1px solid rgba(255,255,255,0.08);  
+      border-radius: 12px;  
+      padding: 28px;  
+      margin-bottom: 20px;  
+      transition: border-color 0.2s;  
+    }  
+
+    .card:hover {  
+      border-color: rgba(99,179,237,0.3);  
+    }  
+
+    .question-num {  
+      font-size: 0.72rem;  
+      color: #63b3ed;  
+      text-transform: uppercase;  
+      letter-spacing: 0.1em;  
+      margin-bottom: 8px;  
+    }  
+
+    .question-text {  
+      font-size: 1.0rem;  
+      color: #e2e8f0;  
+      line-height: 1.5;  
+      margin-bottom: 6px;  
+    }  
+
+    .question-sub {  
+      font-size: 0.82rem;  
+      color: #718096;  
+      margin-bottom: 20px;  
+      font-style: italic;  
+    }  
+
+    .likert-scale {  
+      display: flex;  
+      gap: 8px;  
+      align-items: center;  
+      flex-wrap: wrap;  
+    }  
+
+    .scale-labels {  
+      display: flex;  
+      justify-content: space-between;  
+      width: 100%;  
+      margin-bottom: 10px;  
+    }  
+
+    .scale-labels span {  
+      font-size: 0.75rem;  
+      color: #718096;  
+    }  
+
+    .likert-options {  
+      display: flex;  
+      gap: 8px;  
+      width: 100%;  
+    }  
+
+    .likert-options label {  
+      flex: 1;  
+      display: flex;  
+      flex-direction: column;  
+      align-items: center;  
+      gap: 6px;  
+      cursor: pointer;  
+    }  
+
+    .likert-options input[type="radio"] {  
+      display: none;  
+    }  
+
+    .likert-btn {  
+      width: 100%;  
+      padding: 10px 4px;  
+      border-radius: 8px;  
+      border: 2px solid #2d3748;  
+      background: #1a202c;  
+      color: #a0aec0;  
+      font-size: 0.9rem;  
+      font-weight: 600;  
+      text-align: center;  
+      transition: all 0.15s;  
+      cursor: pointer;  
+    }  
+
+    .likert-options input[type="radio"]:checked + .likert-btn {  
+      border-color: #63b3ed;  
+      background: rgba(99,179,237,0.15);  
+      color: #63b3ed;  
+      transform: scale(1.05);  
+    }  
+
+    .likert-options label:hover .likert-btn {  
+      border-color: #4a5568;  
+      background: #2d3748;  
+    }  
+
+    /* 前测/后测 tab */  
+    .tab-bar {  
+      display: flex;  
+      gap: 0;  
+      margin-bottom: 36px;  
+      border-radius: 10px;  
+      overflow: hidden;  
+      border: 1px solid #2d3748;  
+    }  
+
+    .tab-btn {  
+      flex: 1;  
+      padding: 14px;  
+      background: #1a202c;  
+      color: #718096;  
+      border: none;  
+      cursor: pointer;  
+      font-size: 0.9rem;  
+      font-weight: 600;  
+      transition: all 0.2s;  
+    }  
+
+    .tab-btn.active {  
+      background: rgba(99,179,237,0.15);  
+      color: #63b3ed;  
+    }  
+
+    .vr-link-section {  
+      text-align: center;  
+      margin: 28px 0;  
+      padding: 20px;  
+      background: rgba(99,179,237,0.08);  
+      border-radius: 12px;  
+      border: 1px dashed rgba(99,179,237,0.3);  
+    }  
+
+    .vr-link-section p {  
+      color: #a0aec0;  
+      font-size: 0.88rem;  
+      margin-bottom: 12px;  
+    }  
+
+    .btn-vr {  
+      display: inline-block;  
+      padding: 10px 24px;  
+      background: linear-gradient(135deg, #3182ce, #2b6cb0);  
+      color: white;  
+      text-decoration: none;  
+      border-radius: 8px;  
+      font-size: 0.9rem;  
+      font-weight: 600;  
+      transition: opacity 0.2s;  
+    }  
+
+    .btn-vr:hover { opacity: 0.85; }  
+
+    .submit-section {  
+      text-align: center;  
+      margin-top: 36px;  
+    }  
+
+    .btn-submit {  
+      padding: 14px 48px;  
+      background: linear-gradient(135deg, #38a169, #2f855a);  
+      color: white;  
+      border: none;  
+      border-radius: 10px;  
+      font-size: 1rem;  
+      font-weight: 700;  
+      cursor: pointer;  
+      transition: opacity 0.2s, transform 0.15s;  
+    }  
+
+    .btn-submit:hover {  
+      opacity: 0.9;  
+      transform: translateY(-1px);  
+    }  
+
+    .toast {  
+      position: fixed;  
+      top: 30px;  
+      left: 50%;  
+      transform: translateX(-50%) translateY(-80px);  
+      background: #38a169;  
+      color: white;  
+      padding: 14px 28px;  
+      border-radius: 10px;  
+      font-weight: 600;  
+      transition: transform 0.35s ease;  
+      z-index: 1000;  
+    }  
+
+    .toast.show {  
+      transform: translateX(-50%) translateY(0);  
+    }  
+
+    .nav-links {  
+      text-align: center;  
+      margin-top: 32px;  
+    }  
+
+    .nav-links a {  
+      color: #63b3ed;  
+      text-decoration: none;  
+      margin: 0 16px;  
+      font-size: 0.88rem;  
+    }  
+
+    .nav-links a:hover { text-decoration: underline; }  
+
+    .phase-hidden { display: none; }  
+  </style>  
+</head>  
+<body>  
+
+<div class="container">  
+
+  <div class="header">  
+    <h1>Learning Experience Survey</h1>  
+    <p>This survey measures your <strong>sense of presence</strong> and <strong>learning engagement</strong> in the VR environment.<br>  
+    7-point Likert scale (1 = Strongly Disagree, 7 = Strongly Agree)</p>  
+  </div>  
+
+  <!-- Tab切换 -->  
+  <div class="tab-bar">  
+    <button class="tab-btn active" id="tab-pre" onclick="switchPhase('pre')">  
+      Pre-Survey  
+    </button>  
+    <button class="tab-btn" id="tab-post" onclick="switchPhase('post')">  
+      Post-Survey  
+    </button>  
+  </div>  
+
+  <form id="survey-form">  
+
+    <!-- ── 前测阶段 ── -->  
+    <div id="phase-pre">  
+
+      <p class="section-label">Section A · Baseline Measures (Before VR)</p>  
+
+      <!-- Q1 -->  
+      <div class="card">  
+        <div class="question-num">Question 1 · Technology Familiarity</div>  
+        <div class="question-text">I am familiar with VR (virtual reality) technology.</div>  
+        <div class="question-sub">Rate your prior experience with VR headsets or applications.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options" id="q1">  
+          <label><input type="radio" name="q1" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q1" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q1" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q1" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q1" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q1" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q1" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+      <!-- Q2 -->  
+      <div class="card">  
+        <div class="question-num">Question 2 · Learning Motivation</div>  
+        <div class="question-text">I feel motivated and curious about today's learning content.</div>  
+        <div class="question-sub">Rate your interest level before entering the VR scene.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options">  
+          <label><input type="radio" name="q2" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q2" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q2" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q2" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q2" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q2" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q2" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+      <!-- 进入VR提示 -->  
+      <div class="vr-link-section">  
+        <p>After completing the pre-survey, enter the VR learning scene. Return here to complete the post-survey when finished.</p>  
+        <a href="index.html" class="btn-vr" target="_blank">▶ Enter VR Learning Scene</a>  
+      </div>  
+
+    </div>  
+
+    <!-- ── 后测阶段 ── -->  
+    <div id="phase-post" class="phase-hidden">  
+
+      <p class="section-label">Section B · Presence Scale (based on Witmer & Singer 1998)</p>  
+
+      <!-- Q3 -->  
+      <div class="card">  
+        <div class="question-num">Question 3 · Spatial Presence</div>  
+        <div class="question-text">During the VR experience, I felt as if I was really present in the virtual classroom.</div>  
+        <div class="question-sub">I felt a sense of being present in the virtual classroom.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options">  
+          <label><input type="radio" name="q3" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q3" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q3" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q3" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q3" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q3" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q3" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+      <!-- Q4 -->  
+      <div class="card">  
+        <div class="question-num">Question 4 · Body Ownership</div>  
+        <div class="question-text">The virtual hands felt like my own real hands.</div>  
+        <div class="question-sub">Rate the extent to which you identified with the avatar hands.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options">  
+          <label><input type="radio" name="q4" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q4" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q4" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q4" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q4" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q4" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q4" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+      <!-- Q5 -->  
+      <div class="card">  
+        <div class="question-num">Question 5 · Cognitive Engagement</div>  
+        <div class="question-text">I actively thought about the knowledge presented in the learning cards.</div>  
+        <div class="question-sub">Rate the depth of your cognitive engagement during the VR scene.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options">  
+          <label><input type="radio" name="q5" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q5" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q5" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q5" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q5" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q5" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q5" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+      <!-- Q6 -->  
+      <div class="card">  
+        <div class="question-num">Question 6 · Emotional Engagement</div>  
+        <div class="question-text">Compared to traditional learning, the VR environment made me feel more engaged and interested.</div>  
+        <div class="question-sub">Rate your emotional investment relative to conventional study methods.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options">  
+          <label><input type="radio" name="q6" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q6" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q6" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q6" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q6" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q6" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q6" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+      <!-- Q7 -->  
+      <div class="card">  
+        <div class="question-num">Question 7 · Embodied Interaction</div>  
+        <div class="question-text">Spatial movement and gaze interaction helped me better understand the concept of embodied cognition.</div>  
+        <div class="question-sub">Spatial movement and gaze interaction helped me better understand embodied cognition.</div>  
+        <div class="scale-labels">  
+          <span>Strongly Disagree</span><span>Strongly Agree</span>  
+        </div>  
+        <div class="likert-options">  
+          <label><input type="radio" name="q7" value="1"><span class="likert-btn">1</span></label>  
+          <label><input type="radio" name="q7" value="2"><span class="likert-btn">2</span></label>  
+          <label><input type="radio" name="q7" value="3"><span class="likert-btn">3</span></label>  
+          <label><input type="radio" name="q7" value="4"><span class="likert-btn">4</span></label>  
+          <label><input type="radio" name="q7" value="5"><span class="likert-btn">5</span></label>  
+          <label><input type="radio" name="q7" value="6"><span class="likert-btn">6</span></label>  
+          <label><input type="radio" name="q7" value="7"><span class="likert-btn">7</span></label>  
+        </div>  
+      </div>  
+
+    </div>  
+
+    <div class="submit-section">  
+      <button type="button" class="btn-submit" onclick="submitSurvey()">  
+        Submit Survey  
+      </button>  
+    </div>  
+
+  </form>  
+
+  <div class="nav-links">  
+    <a href="index.html">← VR Scene</a>  
+    <a href="results.html">View Results →</a>  
+  </div>  
+
+</div>  
+
+<div class="toast" id="toast">✓ Data saved. Redirecting to results...</div>  
+
+<script>  
+  let currentPhase = 'pre';  
+
+  function switchPhase(phase) {  
+    currentPhase = phase;  
+    document.getElementById('phase-pre').classList.toggle('phase-hidden', phase !== 'pre');  
+    document.getElementById('phase-post').classList.toggle('phase-hidden', phase !== 'post');  
+    document.getElementById('tab-pre').classList.toggle('active', phase === 'pre');  
+    document.getElementById('tab-post').classList.toggle('active', phase === 'post');  
+  }  
+
+  function submitSurvey() {  
+    const form = document.getElementById('survey-form');  
+    const data = {};  
+    const questions = currentPhase === 'pre' ? ['q1','q2'] : ['q3','q4','q5','q6','q7'];  
+
+    let allAnswered = true;  
+    questions.forEach(q => {  
+      const val = form.querySelector(`input[name="${q}"]:checked`);  
+      if (!val) { allAnswered = false; }  
+      else { data[q] = parseInt(val.value); }  
+    });  
+
+    if (!allAnswered) {  
+      alert('Please answer all questions before submitting.');  
+      return;  
+    }  
+
+    // 读取已有数据，合并保存  
+    const existing = JSON.parse(localStorage.getItem('vr-survey-data') || '{}');  
+    const merged = Object.assign(existing, data);  
+    merged[`${currentPhase}-timestamp`] = new Date().toISOString();  
+    localStorage.setItem('vr-survey-data', JSON.stringify(merged));  
+
+    // 显示toast  
+    const toast = document.getElementById('toast');  
+    toast.classList.add('show');  
+
+    setTimeout(() => {  
+      if (currentPhase === 'pre') {  
+        switchPhase('post');  
+        toast.classList.remove('show');  
+      } else {  
+        window.location.href = 'results.html';  
+      }  
+    }, 1800);  
+  }  
+</script>  
+
+</body>  
+</html>  
