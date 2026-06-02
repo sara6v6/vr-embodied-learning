@@ -1,471 +1,471 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>VR Embodied Learning — sara6v6</title>
-  <meta name="description" content="Immersive VR learning scene exploring embodied cognition and learning engagement">
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-</head>
-<body>
+<!DOCTYPE html>  
+<html>  
+<head>  
+  <meta charset="utf-8">  
+  <title>VR Embodied Learning — sara6v6</title>  
+  <meta name="description" content="Immersive VR learning scene exploring embodied cognition and learning engagement">  
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>  
+</head>  
+<body>  
 
-<script>
-// ─── 学习进度记录（localStorage）───────────────────────────────
-const Progress = {
-  data: JSON.parse(localStorage.getItem('vr-learning-progress') || '{}'),
-  save() { localStorage.setItem('vr-learning-progress', JSON.stringify(this.data)); },
-  markVisited(id) {
-    this.data[id] = { visited: true, time: new Date().toISOString() };
-    this.save();
-    console.log('[Progress] visited:', id, '| total:', Object.keys(this.data).length);
-  },
-  getCount() { return Object.keys(this.data).length; }
-};
+<script>  
+// ─── 学习进度记录（localStorage）───────────────────────────────  
+const Progress = {  
+  data: JSON.parse(localStorage.getItem('vr-learning-progress') || '{}'),  
+  save() { localStorage.setItem('vr-learning-progress', JSON.stringify(this.data)); },  
+  markVisited(id) {  
+    this.data[id] = { visited: true, time: new Date().toISOString() };  
+    this.save();  
+    console.log('[Progress] visited:', id, '| total:', Object.keys(this.data).length);  
+  },  
+  getCount() { return Object.keys(this.data).length; }  
+};  
 
-// ─── 凝视交互组件（无需手柄，注视3秒触发）───────────────────
-AFRAME.registerComponent('gaze-trigger', {
-  schema: { duration: { default: 2000 }, targetId: { default: '' } },
-  init() {
-    this.gazeStart = null;
-    this.gazing = false;
-    this.ring = null;
-    this.el.addEventListener('mouseenter', () => {
-      this.gazeStart = Date.now();
-      this.gazing = true;
-      if (this.ring) this.ring.setAttribute('visible', true);
-    });
-    this.el.addEventListener('mouseleave', () => {
-      this.gazing = false;
-      this.gazeStart = null;
-      if (this.ring) this.ring.setAttribute('visible', false);
-      if (this.ring) this.ring.setAttribute('scale', '1 1 1');
-    });
-  },
-  tick() {
-    if (!this.gazing || !this.gazeStart) return;
-    const elapsed = Date.now() - this.gazeStart;
-    const progress = Math.min(elapsed / this.data.duration, 1);
-    if (this.ring) {
-      const s = 1 + progress * 0.5;
-      this.ring.setAttribute('scale', `${s} ${s} ${s}`);
-    }
-    if (progress >= 1) {
-      this.gazing = false;
-      this.gazeStart = null;
-      if (this.ring) this.ring.setAttribute('visible', false);
-      // 触发显示卡片
-      const target = document.getElementById(this.data.targetId);
-      if (target) {
-        const visible = target.getAttribute('visible');
-        target.setAttribute('visible', !visible);
-        Progress.markVisited(this.data.targetId);
-        updateHUD();
-      }
-    }
-  }
-});
+// ─── 凝视交互组件（无需手柄，注视3秒触发）───────────────────  
+AFRAME.registerComponent('gaze-trigger', {  
+  schema: { duration: { default: 2000 }, targetId: { default: '' } },  
+  init() {  
+    this.gazeStart = null;  
+    this.gazing = false;  
+    this.ring = null;  
+    this.el.addEventListener('mouseenter', () => {  
+      this.gazeStart = Date.now();  
+      this.gazing = true;  
+      if (this.ring) this.ring.setAttribute('visible', true);  
+    });  
+    this.el.addEventListener('mouseleave', () => {  
+      this.gazing = false;  
+      this.gazeStart = null;  
+      if (this.ring) this.ring.setAttribute('visible', false);  
+      if (this.ring) this.ring.setAttribute('scale', '1 1 1');  
+    });  
+  },  
+  tick() {  
+    if (!this.gazing || !this.gazeStart) return;  
+    const elapsed = Date.now() - this.gazeStart;  
+    const progress = Math.min(elapsed / this.data.duration, 1);  
+    if (this.ring) {  
+      const s = 1 + progress * 0.5;  
+      this.ring.setAttribute('scale', `${s} ${s} ${s}`);  
+    }  
+    if (progress >= 1) {  
+      this.gazing = false;  
+      this.gazeStart = null;  
+      if (this.ring) this.ring.setAttribute('visible', false);  
+      // 触发显示卡片  
+      const target = document.getElementById(this.data.targetId);  
+      if (target) {  
+        const visible = target.getAttribute('visible');  
+        target.setAttribute('visible', !visible);  
+        Progress.markVisited(this.data.targetId);  
+        updateHUD();  
+      }  
+    }  
+  }  
+});  
 
-// ─── 传送移动组件 ─────────────────────────────────────────────
-AFRAME.registerComponent('teleport-on-click', {
-  init() {
-    this.el.addEventListener('click', (e) => {
-      const intersection = e.detail.intersection;
-      if (!intersection) return;
-      const pos = intersection.point;
-      const camera = document.getElementById('rig');
-      camera.setAttribute('position', `${pos.x} 0 ${pos.z}`);
-    });
-  }
-});
+// ─── 传送移动组件 ─────────────────────────────────────────────  
+AFRAME.registerComponent('teleport-on-click', {  
+  init() {  
+    this.el.addEventListener('click', (e) => {  
+      const intersection = e.detail.intersection;  
+      if (!intersection) return;  
+      const pos = intersection.point;  
+      const camera = document.getElementById('rig');  
+      camera.setAttribute('position', `${pos.x} 0 ${pos.z}`);  
+    });  
+  }  
+});  
 
-// ─── HUD进度更新 ─────────────────────────────────────────────
-function updateHUD() {
-  const hud = document.getElementById('hud-text');
-  if (hud) {
-    const count = Progress.getCount();
-    hud.setAttribute('value', `学习进度: ${count}/5 个知识点`);
-  }
-}
+// ─── HUD进度更新 ─────────────────────────────────────────────  
+function updateHUD() {  
+  const hud = document.getElementById('hud-text');  
+  if (hud) {  
+    const count = Progress.getCount();  
+    hud.setAttribute('value', `Learning Progress: ${count}/5 Cards`);  
+  }  
+}  
 
-window.addEventListener('load', () => { updateHUD(); });
-</script>
+window.addEventListener('load', () => { updateHUD(); });  
+</script>  
 
-<a-scene
-  fog="type: linear; color: #e8f4f8; near: 15; far: 40"
-  background="color: #e8f4f8"
-  cursor="rayOrigin: mouse"
-  raycaster="objects: .interactive, .floor">
+<a-scene  
+  fog="type: linear; color: #e8f4f8; near: 15; far: 40"  
+  background="color: #e8f4f8"  
+  cursor="rayOrigin: mouse"  
+  raycaster="objects: .interactive, .floor">  
 
-  <!-- ─── 资源 ─── -->
-  <a-assets>
-    <audio id="ambient-sound"
-      src="https://cdn.pixabay.com/audio/2022/03/15/audio_8cb749f7d4.mp3"
-      preload="auto" loop="true" crossorigin="anonymous"></audio>
-  </a-assets>
+  <!-- ─── 资源 ─── -->  
+  <a-assets>  
+    <audio id="ambient-sound"  
+      src="https://cdn.pixabay.com/audio/2022/03/15/audio_8cb749f7d4.mp3"  
+      preload="auto" loop="true" crossorigin="anonymous"></audio>  
+  </a-assets>  
 
-  <!-- ─── 环境音效 ─── -->
-  <a-entity
-    sound="src: #ambient-sound; autoplay: true; loop: true; volume: 0.3"
-    position="0 0 0">
-  </a-entity>
+  <!-- ─── 环境音效 ─── -->  
+  <a-entity  
+    sound="src: #ambient-sound; autoplay: true; loop: true; volume: 0.3"  
+    position="0 0 0">  
+  </a-entity>  
 
-  <!-- ════════════════════════════════════════
-       教室场景
-  ════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════  
+       教室场景  
+  ════════════════════════════════════════ -->  
 
-  <!-- 地面（可传送） -->
-  <a-plane
-    class="floor"
-    teleport-on-click
-    position="0 0 0"
-    rotation="-90 0 0"
-    width="20" height="20"
-    color="#c8b89a"
-    roughness="0.9">
-  </a-plane>
+  <!-- 地面（可传送） -->  
+  <a-plane  
+    class="floor"  
+    teleport-on-click  
+    position="0 0 0"  
+    rotation="-90 0 0"  
+    width="20" height="20"  
+    color="#c8b89a"  
+    roughness="0.9">  
+  </a-plane>  
 
-  <!-- 天花板 -->
-  <a-plane
-    position="0 3.5 0"
-    rotation="90 0 0"
-    width="20" height="20"
-    color="#f5f0e8">
-  </a-plane>
+  <!-- 天花板 -->  
+  <a-plane  
+    position="0 3.5 0"  
+    rotation="90 0 0"  
+    width="20" height="20"  
+    color="#f5f0e8">  
+  </a-plane>  
 
-  <!-- 四面墙 -->
-  <a-box position="0 1.75 -7" width="20" height="3.5" depth="0.1" color="#ddd5c0"></a-box>
-  <a-box position="0 1.75 7"  width="20" height="3.5" depth="0.1" color="#ddd5c0"></a-box>
-  <a-box position="-7 1.75 0" width="0.1" height="3.5" depth="14" color="#ddd5c0"></a-box>
-  <a-box position="7 1.75 0"  width="0.1" height="3.5" depth="14" color="#ddd5c0"></a-box>
+  <!-- 四面墙 -->  
+  <a-box position="0 1.75 -7" width="20" height="3.5" depth="0.1" color="#ddd5c0"></a-box>  
+  <a-box position="0 1.75 7"  width="20" height="3.5" depth="0.1" color="#ddd5c0"></a-box>  
+  <a-box position="-7 1.75 0" width="0.1" height="3.5" depth="14" color="#ddd5c0"></a-box>  
+  <a-box position="7 1.75 0"  width="0.1" height="3.5" depth="14" color="#ddd5c0"></a-box>  
 
-  <!-- ─── 黑板 ─── -->
-  <a-box position="0 2.0 -6.85" width="6" height="2" depth="0.05" color="#2d5a27"></a-box>
-  <!-- 黑板边框 -->
-  <a-box position="0 2.0 -6.8" width="6.2" height="2.2" depth="0.03" color="#8B6914" material="opacity:1">
-  </a-box>
-  <!-- 黑板文字 -->
-  <a-text
-    value="Embodied Cognition & Learning"
-    position="0 2.2 -6.75"
-    align="center"
-    color="#ffffff"
-    width="5"
-    font="monoid">
-  </a-text>
-  <a-text
-    value="身体化认知与学习投入"
-    position="0 1.85 -6.75"
-    align="center"
-    color="#ccffcc"
-    width="4">
-  </a-text>
+  <!-- ─── 黑板 ─── -->  
+  <a-box position="0 2.0 -6.85" width="6" height="2" depth="0.05" color="#2d5a27"></a-box>  
+  <!-- 黑板边框 -->  
+  <a-box position="0 2.0 -6.8" width="6.2" height="2.2" depth="0.03" color="#8B6914" material="opacity:1">  
+  </a-box>  
+  <!-- 黑板文字 -->  
+  <a-text  
+    value="Embodied Cognition & Learning"  
+    position="0 2.2 -6.75"  
+    align="center"  
+    color="#ffffff"  
+    width="5"  
+    font="monoid">  
+  </a-text>  
+  <a-text  
+    value="Embodied Cognition & Learning Engagement"  
+    position="0 1.85 -6.75"  
+    align="center"  
+    color="#ccffcc"  
+    width="4">  
+  </a-text>  
 
-  <!-- 粉笔槽 -->
-  <a-box position="0 1.05 -6.8" width="6" height="0.08" depth="0.12" color="#8B6914"></a-box>
+  <!-- 粉笔槽 -->  
+  <a-box position="0 1.05 -6.8" width="6" height="0.08" depth="0.12" color="#8B6914"></a-box>  
 
-  <!-- ─── 讲台 ─── -->
-  <a-box position="0 0.5 -5.5" width="1.5" height="1.0" depth="0.8" color="#8B6914"></a-box>
-  <a-box position="0 1.02 -5.5" width="1.6" height="0.05" depth="0.9" color="#a07828"></a-box>
+  <!-- ─── 讲台 ─── -->  
+  <a-box position="0 0.5 -5.5" width="1.5" height="1.0" depth="0.8" color="#8B6914"></a-box>  
+  <a-box position="0 1.02 -5.5" width="1.6" height="0.05" depth="0.9" color="#a07828"></a-box>  
 
-  <!-- ─── 学生课桌（3排×3列）─── -->
-  <!-- 第一排 -->
-  <a-entity position="-3 0 -2">
-    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
-    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-  </a-entity>
-  <a-entity position="0 0 -2">
-    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
-    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-  </a-entity>
-  <a-entity position="3 0 -2">
-    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
-    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-  </a-entity>
-  <!-- 第二排 -->
-  <a-entity position="-3 0 1">
-    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
-    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-  </a-entity>
-  <a-entity position="0 0 1">
-    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
-    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-  </a-entity>
-  <a-entity position="3 0 1">
-    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
-    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
-  </a-entity>
+  <!-- ─── 学生课桌（3排×3列）─── -->  
+  <!-- 第一排 -->  
+  <a-entity position="-3 0 -2">  
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>  
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+  </a-entity>  
+  <a-entity position="0 0 -2">  
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>  
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+  </a-entity>  
+  <a-entity position="3 0 -2">  
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>  
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+  </a-entity>  
+  <!-- 第二排 -->  
+  <a-entity position="-3 0 1">  
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>  
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+  </a-entity>  
+  <a-entity position="0 0 1">  
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>  
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+  </a-entity>  
+  <a-entity position="3 0 1">  
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>  
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>  
+  </a-entity>  
 
-  <!-- ─── 椅子（简化版，配合课桌）─── -->
-  <a-box position="-3 0.22 -1.4"  width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
-  <a-box position="0 0.22 -1.4"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
-  <a-box position="3 0.22 -1.4"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
-  <a-box position="-3 0.22 1.6"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
-  <a-box position="0 0.22 1.6"    width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
-  <a-box position="3 0.22 1.6"    width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+  <!-- ─── 椅子（简化版，配合课桌）─── -->  
+  <a-box position="-3 0.22 -1.4"  width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>  
+  <a-box position="0 0.22 -1.4"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>  
+  <a-box position="3 0.22 -1.4"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>  
+  <a-box position="-3 0.22 1.6"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>  
+  <a-box position="0 0.22 1.6"    width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>  
+  <a-box position="3 0.22 1.6"    width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>  
 
-  <!-- ─── 窗户（左墙）─── -->
-  <a-box position="-6.95 2.2 -2" width="0.05" height="1.4" depth="2" color="#aaddff" opacity="0.4" transparent="true"></a-box>
-  <a-box position="-6.95 2.2 2"  width="0.05" height="1.4" depth="2" color="#aaddff" opacity="0.4" transparent="true"></a-box>
+  <!-- ─── 窗户（左墙）─── -->  
+  <a-box position="-6.95 2.2 -2" width="0.05" height="1.4" depth="2" color="#aaddff" opacity="0.4" transparent="true"></a-box>  
+  <a-box position="-6.95 2.2 2"  width="0.05" height="1.4" depth="2" color="#aaddff" opacity="0.4" transparent="true"></a-box>  
 
-  <!-- 窗框 -->
-  <a-box position="-6.92 2.2 -2" width="0.02" height="1.5" depth="2.1" color="#888" opacity="0.8"></a-box>
-  <a-box position="-6.92 2.2 2"  width="0.02" height="1.5" depth="2.1" color="#888" opacity="0.8"></a-box>
+  <!-- 窗框 -->  
+  <a-box position="-6.92 2.2 -2" width="0.02" height="1.5" depth="2.1" color="#888" opacity="0.8"></a-box>  
+  <a-box position="-6.92 2.2 2"  width="0.02" height="1.5" depth="2.1" color="#888" opacity="0.8"></a-box>  
 
-  <!-- ─── 灯光 ─── -->
-  <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
-  <a-light type="directional" position="2 4 1" intensity="0.8" color="#fff8e0" cast-shadow="true"></a-light>
-  <a-light type="point" position="-2 3.2 0" intensity="0.4" color="#fff0cc"></a-light>
-  <a-light type="point" position="2 3.2 0"  intensity="0.4" color="#fff0cc"></a-light>
+  <!-- ─── 灯光 ─── -->  
+  <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>  
+  <a-light type="directional" position="2 4 1" intensity="0.8" color="#fff8e0" cast-shadow="true"></a-light>  
+  <a-light type="point" position="-2 3.2 0" intensity="0.4" color="#fff0cc"></a-light>  
+  <a-light type="point" position="2 3.2 0"  intensity="0.4" color="#fff0cc"></a-light>  
 
-  <!-- ════════════════════════════════════════
-       5张学习卡片（凝视2秒展开）
-  ════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════  
+       5张学习卡片（凝视2秒展开）  
+  ════════════════════════════════════════ -->  
 
-  <!-- 卡片1：身体化认知 -->
-  <a-entity position="-4 1.2 -6.5">
-    <!-- 触发球 -->
-    <a-sphere
-      id="trigger-1"
-      class="interactive"
-      gaze-trigger="duration: 2000; targetId: card-1"
-      radius="0.18"
-      color="#ff6b6b"
-      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"
-      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-    </a-sphere>
-    <!-- 凝视进度环 -->
-    <a-torus
-      id="ring-1"
-      radius="0.25" radius-tubular="0.02"
-      color="#ffff00"
-      visible="false"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">
-    </a-torus>
-    <!-- 标签 -->
-    <a-text value="① 身体化认知" position="0 0.3 0" align="center" color="#333" width="2"></a-text>
-    <!-- 内容卡片 -->
-    <a-entity id="card-1" visible="false" position="0 0.8 0">
-      <a-box width="2.2" height="1.4" depth="0.05" color="#fff8f0" opacity="0.95"></a-box>
-      <a-text
-        value="Embodied Cognition&#10;身体参与影响认知过程&#10;&#10;• 手势辅助概念理解&#10;• 空间移动强化记忆&#10;• 感知运动系统参与学习"
-        position="0 0 0.04"
-        align="center"
-        color="#222"
-        width="3.5"
-        wrap-count="22">
-      </a-text>
-    </a-entity>
-  </a-entity>
+  <!-- 卡片1：身体化认知 -->  
+  <a-entity position="-4 1.2 -6.5">  
+    <!-- 触发球 -->  
+    <a-sphere  
+      id="trigger-1"  
+      class="interactive"  
+      gaze-trigger="duration: 2000; targetId: card-1"  
+      radius="0.18"  
+      color="#ff6b6b"  
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"  
+      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">  
+    </a-sphere>  
+    <!-- 凝视进度环 -->  
+    <a-torus  
+      id="ring-1"  
+      radius="0.25" radius-tubular="0.02"  
+      color="#ffff00"  
+      visible="false"  
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">  
+    </a-torus>  
+    <!-- 标签 -->  
+    <a-text value="① Embodied Cognition" position="0 0.3 0" align="center" color="#333" width="2"></a-text>  
+    <!-- 内容卡片 -->  
+    <a-entity id="card-1" visible="false" position="0 0.8 0">  
+      <a-box width="2.2" height="1.4" depth="0.05" color="#fff8f0" opacity="0.95"></a-box>  
+      <a-text  
+        value="Embodied Cognition&#10;Body involvement shapes cognition&#10;&#10;• Gestures aid concept understanding&#10;• Spatial movement reinforces memory&#10;• Sensorimotor system supports learning"  
+        position="0 0 0.04"  
+        align="center"  
+        color="#222"  
+        width="3.5"  
+        wrap-count="22">  
+      </a-text>  
+    </a-entity>  
+  </a-entity>  
 
-  <!-- 卡片2：Presence临场感 -->
-  <a-entity position="4 1.2 -6.5">
-    <a-sphere
-      id="trigger-2"
-      class="interactive"
-      gaze-trigger="duration: 2000; targetId: card-2"
-      radius="0.18"
-      color="#4ecdc4"
-      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"
-      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-    </a-sphere>
-    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">
-    </a-torus>
-    <a-text value="② Presence临场感" position="0 0.3 0" align="center" color="#333" width="2.2"></a-text>
-    <a-entity id="card-2" visible="false" position="0 0.8 0">
-      <a-box width="2.2" height="1.4" depth="0.05" color="#f0fff8" opacity="0.95"></a-box>
-      <a-text
-        value="VR Presence&#10;沉浸式临场感&#10;&#10;• 空间临场感（在场感）&#10;• 社会临场感（他人感）&#10;• 自我临场感（身体感）"
-        position="0 0 0.04"
-        align="center"
-        color="#222"
-        width="3.5"
-        wrap-count="22">
-      </a-text>
-    </a-entity>
-  </a-entity>
+  <!-- 卡片2：Presence临场感 -->  
+  <a-entity position="4 1.2 -6.5">  
+    <a-sphere  
+      id="trigger-2"  
+      class="interactive"  
+      gaze-trigger="duration: 2000; targetId: card-2"  
+      radius="0.18"  
+      color="#4ecdc4"  
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"  
+      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">  
+    </a-sphere>  
+    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"  
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">  
+    </a-torus>  
+    <a-text value="② VR Presence" position="0 0.3 0" align="center" color="#333" width="2.2"></a-text>  
+    <a-entity id="card-2" visible="false" position="0 0.8 0">  
+      <a-box width="2.2" height="1.4" depth="0.05" color="#f0fff8" opacity="0.95"></a-box>  
+      <a-text  
+        value="VR Presence&#10;Immersive sense of being there&#10;&#10;• Spatial presence (being there)&#10;• Social presence (others near)&#10;• Self presence (bodily sense)"  
+        position="0 0 0.04"  
+        align="center"  
+        color="#222"  
+        width="3.5"  
+        wrap-count="22">  
+      </a-text>  
+    </a-entity>  
+  </a-entity>  
 
-  <!-- 卡片3：Body Ownership -->
-  <a-entity position="-2 1.2 -3">
-    <a-sphere
-      id="trigger-3"
-      class="interactive"
-      gaze-trigger="duration: 2000; targetId: card-3"
-      radius="0.18"
-      color="#a855f7"
-      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"
-      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-    </a-sphere>
-    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">
-    </a-torus>
-    <a-text value="③ Body Ownership" position="0 0.3 0" align="center" color="#333" width="2.2"></a-text>
-    <a-entity id="card-3" visible="false" position="0 0.8 0">
-      <a-box width="2.2" height="1.4" depth="0.05" color="#fdf0ff" opacity="0.95"></a-box>
-      <a-text
-        value="身体所有感&#10;Body Ownership Illusion&#10;&#10;• Rubber Hand Illusion&#10;• VR化身与自我认同&#10;• 影响学习动机与投入"
-        position="0 0 0.04"
-        align="center"
-        color="#222"
-        width="3.5"
-        wrap-count="22">
-      </a-text>
-    </a-entity>
-  </a-entity>
+  <!-- 卡片3：Body Ownership -->  
+  <a-entity position="-2 1.2 -3">  
+    <a-sphere  
+      id="trigger-3"  
+      class="interactive"  
+      gaze-trigger="duration: 2000; targetId: card-3"  
+      radius="0.18"  
+      color="#a855f7"  
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"  
+      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">  
+    </a-sphere>  
+    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"  
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">  
+    </a-torus>  
+    <a-text value="③ Body Ownership" position="0 0.3 0" align="center" color="#333" width="2.2"></a-text>  
+    <a-entity id="card-3" visible="false" position="0 0.8 0">  
+      <a-box width="2.2" height="1.4" depth="0.05" color="#fdf0ff" opacity="0.95"></a-box>  
+      <a-text  
+        value="Body Ownership Illusion&#10;Sense of owning a virtual body&#10;&#10;• Rubber Hand Illusion&#10;• Avatar and self-identification&#10;• Influences motivation and engagement"  
+        position="0 0 0.04"  
+        align="center"  
+        color="#222"  
+        width="3.5"  
+        wrap-count="22">  
+      </a-text>  
+    </a-entity>  
+  </a-entity>  
 
-  <!-- 卡片4：注意力投入 -->
-  <a-entity position="2 1.2 -3">
-    <a-sphere
-      id="trigger-4"
-      class="interactive"
-      gaze-trigger="duration: 2000; targetId: card-4"
-      radius="0.18"
-      color="#f59e0b"
-      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"
-      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: museleave">
-    </a-sphere>
-    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">
-    </a-torus>
-    <a-text value="④ 注意力投入" position="0 0.3 0" align="center" color="#333" width="2"></a-text>
-    <a-entity id="card-4" visible="false" position="0 0.8 0">
-      <a-box width="2.2" height="1.4" depth="0.05" color="#fffbf0" opacity="0.95"></a-box>
-      <a-text
-        value="Learning Engagement&#10;学习投入度&#10;&#10;• 行为投入（操作行为）&#10;• 认知投入（深度加工）&#10;• 情感投入（兴趣动机）"
-        position="0 0 0.04"
-        align="center"
-        color="#222"
-        width="3.5"
-        wrap-count="22">
-      </a-text>
-    </a-entity>
-  </a-entity>
+  <!-- 卡片4：注意力投入 -->  
+  <a-entity position="2 1.2 -3">  
+    <a-sphere  
+      id="trigger-4"  
+      class="interactive"  
+      gaze-trigger="duration: 2000; targetId: card-4"  
+      radius="0.18"  
+      color="#f59e0b"  
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"  
+      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: museleave">  
+    </a-sphere>  
+    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"  
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">  
+    </a-torus>  
+    <a-text value="④ Learning Engagement" position="0 0.3 0" align="center" color="#333" width="2"></a-text>  
+    <a-entity id="card-4" visible="false" position="0 0.8 0">  
+      <a-box width="2.2" height="1.4" depth="0.05" color="#fffbf0" opacity="0.95"></a-box>  
+      <a-text  
+        value="Learning Engagement&#10;Dimensions of engagement&#10;&#10;• Behavioral (active interaction)&#10;• Cognitive (deep processing)&#10;• Emotional (interest and motivation)"  
+        position="0 0 0.04"  
+        align="center"  
+        color="#222"  
+        width="3.5"  
+        wrap-count="22">  
+      </a-text>  
+    </a-entity>  
+  </a-entity>  
 
-  <!-- 卡片5：研究设计 -->
-  <a-entity position="0 1.2 3">
-    <a-sphere
-      id="trigger-5"
-      class="interactive"
-      gaze-trigger="duration: 2000; targetId: card-5"
-      radius="0.18"
-      color="#10b981"
-      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"
-      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-    </a-sphere>
-    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">
-    </a-torus>
-    <a-text value="⑤ 研究设计" position="0 0.3 0" align="center" color="#333" width="2"></a-text>
-    <a-entity id="card-5" visible="false" position="0 0.8 0">
-      <a-box width="2.2" height="1.4" depth="0.05" color="#f0fff4" opacity="0.95"></a-box>
-      <a-text
-        value="Research Design&#10;研究方法&#10;&#10;• 实验组/对照组设计&#10;• EEG+行为数据采集&#10;• 混合方法评估框架"
-        position="0 0 0.04"
-        align="center"
-        color="#222"
-        width="3.5"
-        wrap-count="22">
-      </a-text>
-    </a-entity>
-  </a-entity>
+  <!-- 卡片5：研究设计 -->  
+  <a-entity position="0 1.2 3">  
+    <a-sphere  
+      id="trigger-5"  
+      class="interactive"  
+      gaze-trigger="duration: 2000; targetId: card-5"  
+      radius="0.18"  
+      color="#10b981"  
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 200; startEvents: mouseenter"  
+      animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">  
+    </a-sphere>  
+    <a-torus radius="0.25" radius-tubular="0.02" color="#ffff00" visible="false"  
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 1000; easing: linear">  
+    </a-torus>  
+    <a-text value="⑤ Research Design" position="0 0.3 0" align="center" color="#333" width="2"></a-text>  
+    <a-entity id="card-5" visible="false" position="0 0.8 0">  
+      <a-box width="2.2" height="1.4" depth="0.05" color="#f0fff4" opacity="0.95"></a-box>  
+      <a-text  
+        value="Research Design&#10;Methodology&#10;&#10;• Experimental / control group&#10;• EEG + behavioral data collection&#10;• Mixed-methods evaluation framework"  
+        position="0 0 0.04"  
+        align="center"  
+        color="#222"  
+        width="3.5"  
+        wrap-count="22">  
+      </a-text>  
+    </a-entity>  
+  </a-entity>  
 
-  <!-- ════════════════════════════════════════
-       虚拟化身手部（Avatar Hands）
-  ════════════════════════════════════════ -->
-  <!-- 左手 -->
-  <a-entity position="-0.3 1.4 -0.6" rotation="0 0 -15">
-    <a-box width="0.1" height="0.15" depth="0.05" color="#f4c2a1"></a-box>
-    <!-- 手指 -->
-    <a-box position="-0.035 0.1 0"  width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="-0.01 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="0.015 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="0.04 0.1 0"    width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>
-    <!-- 拇指 -->
-    <a-box position="-0.06 0.04 0" rotation="0 0 40" width="0.02" height="0.06" depth="0.03" color="#f4c2a1"></a-box>
-  </a-entity>
-  <!-- 右手 -->
-  <a-entity position="0.3 1.4 -0.6" rotation="0 0 15">
-    <a-box width="0.1" height="0.15" depth="0.05" color="#f4c2a1"></a-box>
-    <a-box position="-0.035 0.1 0"  width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="-0.01 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="0.015 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="0.04 0.1 0"    width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>
-    <a-box position="0.06 0.04 0"  rotation="0 0 -40" width="0.02" height="0.06" depth="0.03" color="#f4c2a1"></a-box>
-  </a-entity>
+  <!-- ════════════════════════════════════════  
+       虚拟化身手部（Avatar Hands）  
+  ════════════════════════════════════════ -->  
+  <!-- 左手 -->  
+  <a-entity position="-0.3 1.4 -0.6" rotation="0 0 -15">  
+    <a-box width="0.1" height="0.15" depth="0.05" color="#f4c2a1"></a-box>  
+    <!-- 手指 -->  
+    <a-box position="-0.035 0.1 0"  width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="-0.01 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="0.015 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="0.04 0.1 0"    width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>  
+    <!-- 拇指 -->  
+    <a-box position="-0.06 0.04 0" rotation="0 0 40" width="0.02" height="0.06" depth="0.03" color="#f4c2a1"></a-box>  
+  </a-entity>  
+  <!-- 右手 -->  
+  <a-entity position="0.3 1.4 -0.6" rotation="0 0 15">  
+    <a-box width="0.1" height="0.15" depth="0.05" color="#f4c2a1"></a-box>  
+    <a-box position="-0.035 0.1 0"  width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="-0.01 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="0.015 0.11 0"  width="0.02" height="0.09" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="0.04 0.1 0"    width="0.02" height="0.08" depth="0.03" color="#f4c2a1"></a-box>  
+    <a-box position="0.06 0.04 0"  rotation="0 0 -40" width="0.02" height="0.06" depth="0.03" color="#f4c2a1"></a-box>  
+  </a-entity>  
 
-  <!-- ════════════════════════════════════════
-       HUD（固定在摄像机上的进度显示）
-  ════════════════════════════════════════ -->
-  <a-camera id="camera" position="0 1.6 4" wasd-controls-enabled="true">
-    <a-cursor
-      color="#ffffff"
-      animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-      raycaster="objects: .interactive, .floor">
-    </a-cursor>
-    <!-- HUD进度条（固定在视野内）-->
-    <a-entity position="0 0.35 -1">
-      <a-box width="1.2" height="0.12" depth="0.01" color="#000000" opacity="0.5"></a-box>
-      <a-text
-        id="hud-text"
-        value="学习进度: 0/5 个知识点"
-        position="0 0 0.01"
-        align="center"
-        color="#ffffff"
-        width="2.5">
-      </a-text>
-    </a-entity>
-    <!-- 操作提示 -->
-    <a-entity position="0 -0.38 -1">
-      <a-box width="1.8" height="0.08" depth="0.01" color="#000000" opacity="0.4"></a-box>
-      <a-text
-        value="注视彩色球体2秒展开卡片 | WASD移动 | 点击地面传送"
-        position="0 0 0.01"
-        align="center"
-        color="#ffff99"
-        width="3">
-      </a-text>
-    </a-entity>
-  </a-camera>
+  <!-- ════════════════════════════════════════  
+       HUD（固定在摄像机上的进度显示）  
+  ════════════════════════════════════════ -->  
+  <a-camera id="camera" position="0 1.6 4" wasd-controls-enabled="true">  
+    <a-cursor  
+      color="#ffffff"  
+      animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"  
+      raycaster="objects: .interactive, .floor">  
+    </a-cursor>  
+    <!-- HUD进度条（固定在视野内）-->  
+    <a-entity position="0 0.35 -1">  
+      <a-box width="1.2" height="0.12" depth="0.01" color="#000000" opacity="0.5"></a-box>  
+      <a-text  
+        id="hud-text"  
+        value="Learning Progress: 0/5 Cards"  
+        position="0 0 0.01"  
+        align="center"  
+        color="#ffffff"  
+        width="2.5">  
+      </a-text>  
+    </a-entity>  
+    <!-- 操作提示 -->  
+    <a-entity position="0 -0.38 -1">  
+      <a-box width="1.8" height="0.08" depth="0.01" color="#000000" opacity="0.4"></a-box>  
+      <a-text  
+        value="Gaze at spheres 2s to open cards | WASD to move | Click floor to teleport"  
+        position="0 0 0.01"  
+        align="center"  
+        color="#ffff99"  
+        width="3">  
+      </a-text>  
+    </a-entity>  
+  </a-camera>  
 
-  <!-- 相机绑定到Rig（传送用）-->
-  <a-entity id="rig" position="0 0 4">
-  </a-entity>
+  <!-- 相机绑定到Rig（传送用）-->  
+  <a-entity id="rig" position="0 0 4">  
+  </a-entity>  
 
-</a-scene>
+</a-scene>  
 
-<script>
-// 把camera绑定进rig
-window.addEventListener('load', () => {
-  const rig = document.getElementById('rig');
-  const cam = document.getElementById('camera');
-  // 手动将凝视环关联
-  document.querySelectorAll('[gaze-trigger]').forEach((el, i) => {
-    const ring = el.parentElement.querySelector('a-torus');
-    if (ring) {
-      el.components['gaze-trigger'].ring = ring;
-    }
-  });
-  updateHUD();
-});
-</script>
+<script>  
+// 把camera绑定进rig  
+window.addEventListener('load', () => {  
+  const rig = document.getElementById('rig');  
+  const cam = document.getElementById('camera');  
+  // 手动将凝视环关联  
+  document.querySelectorAll('[gaze-trigger]').forEach((el, i) => {  
+    const ring = el.parentElement.querySelector('a-torus');  
+    if (ring) {  
+      el.components['gaze-trigger'].ring = ring;  
+    }  
+  });  
+  updateHUD();  
+});  
+</script>  
 
-</body>
-</html>
+</body>  
+</html>  
