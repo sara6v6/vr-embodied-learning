@@ -22,7 +22,46 @@ const Progress = {
   getCount() { return Object.keys(this.data).length; }  
 };  
 
-// ─── 凝视交互组件（无需手柄，注视3秒触发）───────────────────  
+// ─── 行为追踪（时间戳 + 探索序列）────────────────────────────  
+const BehaviorLog = {  
+  sessionStart: Date.now(),  
+  events: JSON.parse(localStorage.getItem('vr-behavior-log') || '[]'),  
+
+  log(type, cardId, extra) {  
+    const entry = {  
+      type,  
+      cardId: cardId || null,  
+      timestamp: new Date().toISOString(),  
+      elapsed: Math.round((Date.now() - this.sessionStart) / 1000), // seconds  
+      ...extra  
+    };  
+    this.events.push(entry);  
+    localStorage.setItem('vr-behavior-log', JSON.stringify(this.events));  
+    console.log('[BehaviorLog]', entry);  
+  },  
+
+  startSession() {  
+    this.log('session_start', null, { userAgent: navigator.userAgent });  
+  },  
+
+  logCardOpen(cardId) {  
+    this.log('card_open', cardId);  
+  },  
+
+  logCardClose(cardId) {  
+    this.log('card_close', cardId);  
+  },  
+
+  logTeleport(x, z) {  
+    this.log('teleport', null, { position: { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 } });  
+  },  
+
+  getTotalDuration() {  
+    return Math.round((Date.now() - this.sessionStart) / 1000);  
+  }  
+};  
+
+// ─── 凝视交互组件（无需手柄，注视2秒触发）───────────────────  
 AFRAME.registerComponent('gaze-trigger', {  
   schema: { duration: { default: 2000 }, targetId: { default: '' } },  
   init() {  
@@ -57,8 +96,14 @@ AFRAME.registerComponent('gaze-trigger', {
       const target = document.getElementById(this.data.targetId);  
       if (target) {  
         const visible = target.getAttribute('visible');  
-        target.setAttribute('visible', !visible);  
-        Progress.markVisited(this.data.targetId);  
+        const nowVisible = !visible;  
+        target.setAttribute('visible', nowVisible);  
+        if (nowVisible) {  
+          Progress.markVisited(this.data.targetId);  
+          BehaviorLog.logCardOpen(this.data.targetId);  
+        } else {  
+          BehaviorLog.logCardClose(this.data.targetId);  
+        }  
         updateHUD();  
       }  
     }  
@@ -74,6 +119,7 @@ AFRAME.registerComponent('teleport-on-click', {
       const pos = intersection.point;  
       const camera = document.getElementById('rig');  
       camera.setAttribute('position', `${pos.x} 0 ${pos.z}`);  
+      BehaviorLog.logTeleport(pos.x, pos.z);  
     });  
   }  
 });  
@@ -87,7 +133,15 @@ function updateHUD() {
   }  
 }  
 
-window.addEventListener('load', () => { updateHUD(); });  
+window.addEventListener('load', () => {  
+  BehaviorLog.startSession();  
+  updateHUD();  
+});  
+
+// ─── 页面离开时记录总时长 ─────────────────────────────────────  
+window.addEventListener('beforeunload', () => {  
+  BehaviorLog.log('session_end', null, { totalDuration: BehaviorLog.getTotalDuration() });  
+});  
 </script>  
 
 <a-scene  
