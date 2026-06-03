@@ -80,7 +80,40 @@ The prototype is inspired by studies on **tele-existence**, **pseudo-embodiment*
 This question connects educational technology with affective computing and human augmentation — the core intersection I aim to investigate at the graduate level.  
 
 ---  
+## Methodology  
 
+### Research Questions  
+1. Does immersive VR presence (measured by IPQ) correlate with increased learning engagement (measured by AEQ)?  
+2. Does body ownership illusion (avatar hands) contribute to the sense of spatial presence?  
+
+### Variables  
+| Variable | Type | Measurement |  
+|----------|------|-------------|  
+| Spatial Presence | Dependent | IPQ items (Q3) — 7-point Likert |  
+| Body Ownership | Dependent | BOI-adapted (Q4) — 7-point Likert |  
+| Cognitive Engagement | Dependent | AEQ (Q5) — 7-point Likert |  
+| Emotional Engagement | Dependent | AEQ (Q6) — 7-point Likert |  
+| VR Familiarity | Control | Self-report (Q1) — 7-point Likert |  
+| Card Exploration | Behavioral | Count of cards visited (0–5) |  
+| Exploration Sequence | Behavioral | Timestamp log per card_open event |  
+| Session Duration | Behavioral | Total time in VR scene (seconds) |  
+| Teleportation Count | Behavioral | Number of floor-click teleports |  
+
+### Data Collection  
+- **Survey data**: Pre/post Likert responses stored in `localStorage` (`vr-survey-data`)  
+- **Behavioral data**: Timestamped event log stored in `localStorage` (`vr-behavior-log`)  
+  - Event types: `session_start`, `card_open`, `card_close`, `teleport`, `session_end`  
+- **Export**: All data exportable as structured JSON from results.html  
+
+### Validated Scales Used  
+- **IPQ** — Igroup Presence Questionnaire (Schubert et al., 2001)  
+- **BOI Scale** — Body Ownership Illusion (Longo et al., 2008, adapted)  
+- **AEQ** — Academic Engagement Questionnaire (Fredricks et al., 2004)  
+
+### Quasi-Experimental Design  
+Single-group pre/post design. Participants complete a baseline survey, explore the VR scene, then complete a post-survey. Behavioral interaction data is logged throughout the session.  
+
+---  
 ## Technology  
 
 - **[A-Frame](https://aframe.io/)** (WebVR framework, v1.5.0)  
