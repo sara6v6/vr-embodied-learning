@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>VR Embodied Learning — Control Condition</title>
+  <meta name="description" content="Control condition: text-based learning without embodied interaction">
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+</head>
+<body>
+
+<script>
+// ─── Behavior logging (control group) ───────────────────────
+const BehaviorLog = {
+  sessionStart: Date.now(),
+  events: JSON.parse(localStorage.getItem('vr-behavior-log-control') || '[]'),
+  log(type, detail = {}) {
+    const entry = {
+      type,
+      timestamp: new Date().toISOString(),
+      elapsed: Math.round((Date.now() - this.sessionStart) / 1000),
+      ...detail
+    };
+    this.events.push(entry);
+    localStorage.setItem('vr-behavior-log-control', JSON.stringify(this.events));
+    console.log('[BehaviorLog-Control]', entry);
+  }
+};
+
+// ─── Progress tracking ───────────────────────────────────────
+const Progress = {
+  data: JSON.parse(localStorage.getItem('vr-learning-progress-control') || '{}'),
+  save() { localStorage.setItem('vr-learning-progress-control', JSON.stringify(this.data)); },
+  markVisited(id) {
+    this.data[id] = { visited: true, time: new Date().toISOString() };
+    this.save();
+  },
+  getCount() { return Object.keys(this.data).length; }
+};
+
+// ─── Click-to-open component (no gaze, no teleport) ─────────
+AFRAME.registerComponent('click-trigger', {
+  schema: { targetId: { default: '' } },
+  init() {
+    this.el.addEventListener('click', () => {
+      const target = document.getElementById(this.data.targetId);
+      if (target) {
+        const visible = target.getAttribute('visible');
+        target.setAttribute('visible', !visible);
+        if (!visible) {
+          Progress.markVisited(this.data.targetId);
+          BehaviorLog.log('card_open', { cardId: this.data.targetId, condition: 'control' });
+          updateHUD();
+        } else {
+          BehaviorLog.log('card_close', { cardId: this.data.targetId, condition: 'control' });
+        }
+      }
+    });
+  }
+});
+
+function updateHUD() {
+  const hud = document.getElementById('hud-text');
+  if (hud) {
+    hud.setAttribute('value', `Progress: ${Progress.getCount()}/5 cards read`);
+  }
+}
+
+window.addEventListener('load', () => {
+  BehaviorLog.log('session_start', { condition: 'control' });
+  updateHUD();
+});
+
+window.addEventListener('beforeunload', () => {
+  BehaviorLog.log('session_end', {
+    condition: 'control',
+    cardsVisited: Progress.getCount()
+  });
+});
+</script>
+
+<a-scene
+  fog="type: linear; color: #e8f4f8; near: 15; far: 40"
+  background="color: #e8f4f8"
+  cursor="rayOrigin: mouse"
+  raycaster="objects: .interactive">
+
+  <!-- ─── Lighting ─── -->
+  <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+  <a-light type="directional" position="2 4 1" intensity="0.8" color="#fff8e0"></a-light>
+  <a-light type="point" position="-2 3.2 0" intensity="0.4" color="#fff0cc"></a-light>
+  <a-light type="point" position="2 3.2 0"  intensity="0.4" color="#fff0cc"></a-light>
+
+  <!-- ─── Floor ─── -->
+  <a-plane
+    position="0 0 0"
+    rotation="-90 0 0"
+    width="20" height="20"
+    color="#c8b89a">
+  </a-plane>
+
+  <!-- ─── Ceiling ─── -->
+  <a-plane position="0 3.5 0" rotation="90 0 0" width="20" height="20" color="#f5f0e8"></a-plane>
+
+  <!-- ─── Walls ─── -->
+  <a-box position="0 1.75 -7"  width="20" height="3.5" depth="0.1" color="#ddd5c0"></a-box>
+  <a-box position="0 1.75 7"   width="20" height="3.5" depth="0.1" color="#ddd5c0"></a-box>
+  <a-box position="-7 1.75 0"  width="0.1" height="3.5" depth="14" color="#ddd5c0"></a-box>
+  <a-box position="7 1.75 0"   width="0.1" height="3.5" depth="14" color="#ddd5c0"></a-box>
+
+  <!-- ─── Blackboard ─── -->
+  <a-box position="0 2.0 -6.85" width="6" height="2" depth="0.05" color="#2d5a27"></a-box>
+  <a-box position="0 2.0 -6.8"  width="6.2" height="2.2" depth="0.03" color="#8B6914"></a-box>
+  <a-text value="Embodied Cognition & Learning" position="0 2.2 -6.75" align="center" color="#ffffff" width="5"></a-text>
+  <a-text value="Control Condition — Text Reading" position="0 1.85 -6.75" align="center" color="#ffcccc" width="4"></a-text>
+  <a-box position="0 1.05 -6.8" width="6" height="0.08" depth="0.12" color="#8B6914"></a-box>
+
+  <!-- ─── Lectern ─── -->
+  <a-box position="0 0.5 -5.5"  width="1.5" height="1.0" depth="0.8" color="#8B6914"></a-box>
+  <a-box position="0 1.02 -5.5" width="1.6" height="0.05" depth="0.9" color="#a07828"></a-box>
+
+  <!-- ─── Desks (3x2) ─── -->
+  <a-entity position="-3 0 -2">
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+  </a-entity>
+  <a-entity position="0 0 -2">
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+  </a-entity>
+  <a-entity position="3 0 -2">
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+  </a-entity>
+  <a-entity position="-3 0 1">
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+  </a-entity>
+  <a-entity position="0 0 1">
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+  </a-entity>
+  <a-entity position="3 0 1">
+    <a-box position="0 0.4 0" width="1.2" height="0.05" depth="0.7" color="#c8a86e"></a-box>
+    <a-box position="-0.5 0.2 -0.3" width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 -0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="-0.5 0.2 0.3"  width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+    <a-box position="0.5 0.2 0.3"   width="0.05" height="0.4" depth="0.05" color="#8B6914"></a-box>
+  </a-entity>
+
+  <!-- ─── Chairs ─── -->
+  <a-box position="-3 0.22 -1.4" width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+  <a-box position="0 0.22 -1.4"  width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+  <a-box position="3 0.22 -1.4"  width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+  <a-box position="-3 0.22 1.6"  width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+  <a-box position="0 0.22 1.6"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+  <a-box position="3 0.22 1.6"   width="0.6" height="0.05" depth="0.6" color="#5d8aa8"></a-box>
+
+  <!-- ─── Windows ─── -->
+  <a-box position="-6.95 2.2 -2" width="0.05" height="1.4" depth="2" color="#aaddff" opacity="0.4" transparent="true"></a-box>
+  <a-box position="-6.95 2.2 2"  width="0.05" height="1.4" depth="2" color="#aaddff" opacity="0.4" transparent="true"></a-box>
+
+  <!-- ════════════════════════════════════
+       5 Knowledge Cards (click to open)
+       Note: no gaze, no avatar hands
+  ════════════════════════════════════ -->
+
+  <!-- Card 1: Embodied Cognition -->
+  <a-entity position="-4 1.2 -6.5">
+    <a-box
+      id="trigger-1"
+      class="interactive"
+      click-trigger="targetId: card-1"
+      width="0.36" height="0.36" depth="0.36"
+      color="#ff6b6b"
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 150; startEvents: mouseenter"
+      animation__leave="property: scale; to: 1 1 1; dur: 150; startEvents: mouseleave">
+    </a-box>
+    <a-text value="① Click to read" position="0 0.32 0" align="center" color="#555" width="1.8"></a-text>
+    <a-entity id="card-1" visible="false" position="0 0.9 0">
+      <a-box width="2.2" height="1.4" depth="0.05" color="#fff8f0" opacity="0.95"></a-box>
+      <a-text
+        value="Embodied Cognition&#10;&#10;• Gestures aid concept learning&#10;• Spatial movement strengthens memory&#10;• Sensorimotor systems support cognition&#10;&#10;Wilson (2002)"
+        position="0 0 0.04"
+        align="center"
+        color="#222"
+        width="3.5"
+        wrap-count="26">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- Card 2: VR Presence -->
+  <a-entity position="4 1.2 -6.5">
+    <a-box
+      id="trigger-2"
+      class="interactive"
+      click-trigger="targetId: card-2"
+      width="0.36" height="0.36" depth="0.36"
+      color="#4ecdc4"
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 150; startEvents: mouseenter"
+      animation__leave="property: scale; to: 1 1 1; dur: 150; startEvents: mouseleave">
+    </a-box>
+    <a-text value="② Click to read" position="0 0.32 0" align="center" color="#555" width="1.8"></a-text>
+    <a-entity id="card-2" visible="false" position="0 0.9 0">
+      <a-box width="2.2" height="1.4" depth="0.05" color="#f0fff8" opacity="0.95"></a-box>
+      <a-text
+        value="VR Presence&#10;&#10;• Spatial presence (being there)&#10;• Social presence (others)&#10;• Self presence (bodily sense)&#10;&#10;Schubert et al. (2001)"
+        position="0 0 0.04"
+        align="center"
+        color="#222"
+        width="3.5"
+        wrap-count="26">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- Card 3: Body Ownership -->
+  <a-entity position="-2 1.2 -3">
+    <a-box
+      id="trigger-3"
+      class="interactive"
+      click-trigger="targetId: card-3"
+      width="0.36" height="0.36" depth="0.36"
+      color="#a855f7"
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 150; startEvents: mouseenter"
+      animation__leave="property: scale; to: 1 1 1; dur: 150; startEvents: mouseleave">
+    </a-box>
+    <a-text value="③ Click to read" position="0 0.32 0" align="center" color="#555" width="1.8"></a-text>
+    <a-entity id="card-3" visible="false" position="0 0.9 0">
+      <a-box width="2.2" height="1.4" depth="0.05" color="#fdf0ff" opacity="0.95"></a-box>
+      <a-text
+        value="Body Ownership Illusion&#10;&#10;• Rubber Hand Illusion&#10;• Avatar and self-identification&#10;• Affects learning motivation&#10;&#10;Longo et al. (2008)"
+        position="0 0 0.04"
+        align="center"
+        color="#222"
+        width="3.5"
+        wrap-count="26">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- Card 4: Learning Engagement -->
+  <a-entity position="2 1.2 -3">
+    <a-box
+      id="trigger-4"
+      class="interactive"
+      click-trigger="targetId: card-4"
+      width="0.36" height="0.36" depth="0.36"
+      color="#f59e0b"
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 150; startEvents: mouseenter"
+      animation__leave="property: scale; to: 1 1 1; dur: 150; startEvents: mouseleave">
+    </a-box>
+    <a-text value="④ Click to read" position="0 0.32 0" align="center" color="#555" width="1.8"></a-text>
+    <a-entity id="card-4" visible="false" position="0 0.9 0">
+      <a-box width="2.2" height="1.4" depth="0.05" color="#fffbf0" opacity="0.95"></a-box>
+      <a-text
+        value="Learning Engagement&#10;&#10;• Behavioral engagement (actions)&#10;• Cognitive engagement (deep processing)&#10;• Emotional engagement (motivation)&#10;&#10;Fredricks et al. (2004)"
+        position="0 0 0.04"
+        align="center"
+        color="#222"
+        width="3.5"
+        wrap-count="26">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- Card 5: Research Design -->
+  <a-entity position="0 1.2 3">
+    <a-box
+      id="trigger-5"
+      class="interactive"
+      click-trigger="targetId: card-5"
+      width="0.36" height="0.36" depth="0.36"
+      color="#10b981"
+      animation__hover="property: scale; to: 1.2 1.2 1.2; dur: 150; startEvents: mouseenter"
+      animation__leave="property: scale; to: 1 1 1; dur: 150; startEvents: mouseleave">
+    </a-box>
+    <a-text value="⑤ Click to read" position="0 0.32 0" align="center" color="#555" width="1.8"></a-text>
+    <a-entity id="card-5" visible="false" position="0 0.9 0">
+      <a-box width="2.2" height="1.4" depth="0.05" color="#f0fff4" opacity="0.95"></a-box>
+      <a-text
+        value="Research Design&#10;&#10;• Experimental vs. control group&#10;• Behavioral log + Likert survey&#10;• Mixed-methods evaluation&#10;&#10;Quasi-experimental design"
+        position="0 0 0.04"
+        align="center"
+        color="#222"
+        width="3.5"
+        wrap-count="26">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- ════════════════════════════════════
+       HUD (no avatar hands in control)
+  ════════════════════════════════════ -->
+  <a-camera id="camera" position="0 1.6 4" wasd-controls-enabled="true">
+    <a-cursor
+      color="#ff4444"
+      animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+      raycaster="objects: .interactive">
+    </a-cursor>
+    <!-- Progress HUD -->
+    <a-entity position="0 0.35 -1">
+      <a-box width="1.4" height="0.12" depth="0.01" color="#000000" opacity="0.5"></a-box>
+      <a-text
+        id="hud-text"
+        value="Progress: 0/5 cards read"
+        position="0 0 0.01"
+        align="center"
+        color="#ffffff"
+        width="2.8">
+      </a-text>
+    </a-entity>
+    <!-- Condition label -->
+    <a-entity position="0 0.22 -1">
+      <a-box width="1.4" height="0.10" depth="0.01" color="#660000" opacity="0.5"></a-box>
+      <a-text
+        value="CONTROL CONDITION — Click cubes to read"
+        position="0 0 0.01"
+        align="center"
+        color="#ffaaaa"
+        width="2.8">
+      </a-text>
+    </a-entity>
+    <!-- Instructions -->
+    <a-entity position="0 -0.38 -1">
+      <a-box width="1.8" height="0.08" depth="0.01" color="#000000" opacity="0.4"></a-box>
+      <a-text
+        value="Click colored cubes to read | WASD to move"
+        position="0 0 0.01"
+        align="center"
+        color="#ffff99"
+        width="3">
+      </a-text>
+    </a-entity>
+  </a-camera>
+
+</a-scene>
+
+<script>
+window.addEventListener('load', () => {
+  // 关联凝视进度环（本场景无ring，placeholder保持兼容）
+  updateHUD();
+});
+</script>
+
+</body>
+</html>
