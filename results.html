@@ -16,7 +16,7 @@
       padding: 40px 20px;  
     }  
 
-    .container { max-width: 860px; margin: 0 auto; }  
+    .container { max-width: 900px; margin: 0 auto; }  
 
     h1 {  
       text-align: center;  
@@ -65,42 +65,15 @@
       line-height: 1;  
     }  
 
-    .stat-label {  
-      font-size: 0.82rem;  
-      color: #718096;  
-      margin-top: 6px;  
-    }  
-
-    .stat-row {  
-      display: flex;  
-      gap: 32px;  
-      flex-wrap: wrap;  
-      margin-top: 8px;  
-    }  
-
-    .stat-item { text-align: center; }  
+    .stat-label { font-size: 0.82rem; color: #718096; margin-top: 6px; }  
 
     canvas { max-height: 280px; }  
 
-    .card-list {  
-      list-style: none;  
-      display: flex;  
-      flex-direction: column;  
-      gap: 10px;  
-    }  
+    .card-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }  
 
-    .card-item {  
-      display: flex;  
-      align-items: center;  
-      gap: 12px;  
-      font-size: 0.88rem;  
-    }  
+    .card-item { display: flex; align-items: center; gap: 12px; font-size: 0.88rem; }  
 
-    .card-dot {  
-      width: 12px; height: 12px;  
-      border-radius: 50%;  
-      flex-shrink: 0;  
-    }  
+    .card-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }  
 
     .card-name { flex: 1; color: #e2e8f0; }  
 
@@ -114,9 +87,7 @@
     .visited { background: rgba(56,161,105,0.2); color: #68d391; }  
     .not-visited { background: rgba(113,128,150,0.2); color: #718096; }  
 
-    .score-bar-wrap {  
-      margin-bottom: 14px;  
-    }  
+    .score-bar-wrap { margin-bottom: 14px; }  
 
     .score-bar-label {  
       display: flex;  
@@ -126,22 +97,62 @@
       margin-bottom: 6px;  
     }  
 
-    .score-bar-bg {  
-      height: 8px;  
-      background: #2d3748;  
-      border-radius: 4px;  
-      overflow: hidden;  
+    .score-bar-bg { height: 8px; background: #2d3748; border-radius: 4px; overflow: hidden; }  
+
+    .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }  
+
+    /* 时间线样式 */  
+    .timeline { position: relative; padding-left: 20px; }  
+
+    .timeline-item {  
+      position: relative;  
+      padding: 8px 0 8px 20px;  
+      border-left: 2px solid #2d3748;  
+      font-size: 0.82rem;  
     }  
 
-    .score-bar-fill {  
-      height: 100%;  
-      border-radius: 4px;  
-      transition: width 0.8s ease;  
+    .timeline-item::before {  
+      content: '';  
+      position: absolute;  
+      left: -6px;  
+      top: 14px;  
+      width: 10px;  
+      height: 10px;  
+      border-radius: 50%;  
+      background: #63b3ed;  
     }  
+
+    .timeline-item.card_open::before { background: #68d391; }  
+    .timeline-item.teleport::before  { background: #f59e0b; }  
+    .timeline-item.session_end::before { background: #fc8181; }  
+
+    .timeline-time { color: #63b3ed; font-size: 0.75rem; margin-right: 8px; }  
+    .timeline-label { color: #e2e8f0; }  
+    .timeline-detail { color: #718096; font-size: 0.75rem; margin-top: 2px; }  
+
+    /* 按钮组 */  
+    .btn-group {  
+      display: flex;  
+      gap: 12px;  
+      justify-content: center;  
+      margin-top: 32px;  
+      flex-wrap: wrap;  
+    }  
+
+    .btn-export {  
+      padding: 10px 28px;  
+      background: rgba(99,179,237,0.15);  
+      border: 1px solid rgba(99,179,237,0.3);  
+      color: #63b3ed;  
+      border-radius: 8px;  
+      cursor: pointer;  
+      font-size: 0.85rem;  
+      transition: background 0.2s;  
+    }  
+
+    .btn-export:hover { background: rgba(99,179,237,0.25); }  
 
     .btn-reset {  
-      display: block;  
-      margin: 32px auto 0;  
       padding: 10px 28px;  
       background: rgba(229,62,62,0.15);  
       border: 1px solid rgba(229,62,62,0.3);  
@@ -154,24 +165,22 @@
 
     .btn-reset:hover { background: rgba(229,62,62,0.25); }  
 
-    .no-data {  
-      text-align: center;  
-      color: #718096;  
-      padding: 48px 0;  
-    }  
-
+    .no-data { text-align: center; color: #718096; padding: 48px 0; }  
     .no-data a { color: #63b3ed; }  
 
-    .nav-links {  
-      text-align: center;  
-      margin-top: 36px;  
-    }  
-
+    .nav-links { text-align: center; margin-top: 36px; }  
     .nav-links a {  
       color: #63b3ed;  
       text-decoration: none;  
       margin: 0 16px;  
       font-size: 0.88rem;  
+    }  
+
+    .ref-note {  
+      font-size: 0.72rem;  
+      color: #4a5568;  
+      margin-top: 16px;  
+      font-style: italic;  
     }  
   </style>  
 </head>  
@@ -180,7 +189,7 @@
 <div class="container">  
 
   <h1>Research Results</h1>  
-  <p class="subtitle">Research Results · VR Embodied Learning Prototype · sara6v6</p>  
+  <p class="subtitle">VR Embodied Learning Prototype · Behavioral & Survey Data Dashboard · sara6v6</p>  
 
   <div id="main-content"></div>  
 
@@ -203,42 +212,65 @@ const CARDS = [
 const SURVEY_LABELS = {  
   q1: 'VR Familiarity (Pre)',  
   q2: 'Learning Motivation (Pre)',  
-  q3: 'Spatial Presence',  
-  q4: 'Body Ownership',  
-  q5: 'Cognitive Engagement',  
-  q6: 'Emotional Engagement',  
+  q3: 'Spatial Presence (IPQ)',  
+  q4: 'Body Ownership (BOI)',  
+  q5: 'Cognitive Engagement (AEQ)',  
+  q6: 'Emotional Engagement (AEQ)',  
   q7: 'Embodied Interaction Understanding',  
 };  
+
+const EVENT_LABELS = {  
+  session_start: 'Session started',  
+  session_end:   'Session ended',  
+  card_open:     'Card opened',  
+  card_close:    'Card closed',  
+  teleport:      'Teleported',  
+};  
+
+function formatElapsed(sec) {  
+  if (sec < 60) return `${sec}s`;  
+  return `${Math.floor(sec/60)}m ${sec%60}s`;  
+}  
 
 function render() {  
   const progressData = JSON.parse(localStorage.getItem('vr-learning-progress') || '{}');  
   const surveyData   = JSON.parse(localStorage.getItem('vr-survey-data') || '{}');  
-  const container = document.getElementById('main-content');  
+  const behaviorLog  = JSON.parse(localStorage.getItem('vr-behavior-log') || '[]');  
+  const container    = document.getElementById('main-content');  
 
   const visitedCount = Object.keys(progressData).length;  
-  const hasSurvey = Object.keys(surveyData).length > 0;  
+  const hasSurvey    = Object.keys(surveyData).length > 0;  
+  const hasBehavior  = behaviorLog.length > 0;  
 
-  if (visitedCount === 0 && !hasSurvey) {  
+  if (visitedCount === 0 && !hasSurvey && !hasBehavior) {  
     container.innerHTML = `  
       <div class="no-data">  
         <p style="font-size:1.1rem;color:#e2e8f0;margin-bottom:12px">No data yet</p>  
-        <p>Please <a href="survey.html">complete the pre-survey</a>, then enter the VR scene and complete the post-survey</p>  
+        <p>Please <a href="survey.html">complete the pre-survey</a>, then explore the VR scene and submit the post-survey.</p>  
       </div>`;  
     return;  
   }  
 
-  // 统计卡片访问  
   const visitedIds = Object.keys(progressData);  
 
   // 后测均值  
   const postKeys = ['q3','q4','q5','q6','q7'];  
   const postVals = postKeys.map(k => surveyData[k] || null).filter(v => v !== null);  
-  const postMean = postVals.length ? (postVals.reduce((a,b)=>a+b,0)/postVals.length).toFixed(2) : 'N/A';  
+  const postMean = postVals.length  
+    ? (postVals.reduce((a,b) => a+b, 0) / postVals.length).toFixed(2)  
+    : 'N/A';  
+
+  // 总沉浸时长（从行为日志中读取）  
+  const sessionEnd = behaviorLog.find(e => e.type === 'session_end');  
+  const totalDuration = sessionEnd ? formatElapsed(sessionEnd.totalDuration) : 'In progress';  
+
+  // 传送次数  
+  const teleportCount = behaviorLog.filter(e => e.type === 'teleport').length;  
 
   container.innerHTML = `  
     <div class="grid">  
 
-      <!-- 统计摘要 -->  
+      <!-- 统计：进度 -->  
       <div class="card">  
         <div class="card-title">Learning Progress</div>  
         <div class="stat-big">${visitedCount}<span style="font-size:1.2rem;color:#718096">/5</span></div>  
@@ -246,54 +278,92 @@ function render() {
         <div style="margin-top:20px;height:6px;background:#2d3748;border-radius:3px">  
           <div style="height:100%;width:${visitedCount/5*100}%;background:linear-gradient(90deg,#38a169,#68d391);border-radius:3px;transition:width 1s"></div>  
         </div>  
+        <div style="margin-top:16px;display:flex;gap:24px;">  
+          <div>  
+            <div style="font-size:1.4rem;font-weight:700;color:#f59e0b">${teleportCount}</div>  
+            <div style="font-size:0.75rem;color:#718096">Teleports</div>  
+          </div>  
+          <div>  
+            <div style="font-size:1.4rem;font-weight:700;color:#4ecdc4">${totalDuration}</div>  
+            <div style="font-size:0.75rem;color:#718096">Session duration</div>  
+          </div>  
+        </div>  
       </div>  
 
-      <!-- 问卷均值 -->  
+      <!-- 统计：问卷均值 -->  
       <div class="card">  
-        <div class="card-title">Survey Score · Post-Survey Average</div>  
+        <div class="card-title">Post-Survey Average Score</div>  
         <div class="stat-big">${postMean}<span style="font-size:1rem;color:#718096"> / 7</span></div>  
-        <div class="stat-label">Presence + Engagement combined mean</div>  
-        ${hasSurvey ? `<div style="margin-top:8px;font-size:0.8rem;color:#718096">  
-          Pre-survey time: ${surveyData['pre-timestamp'] ? new Date(surveyData['pre-timestamp']).toLocaleString() : 'N/A'}<br>  
-          Post-survey time: ${surveyData['post-timestamp'] ? new Date(surveyData['post-timestamp']).toLocaleString() : 'N/A'}  
+        <div class="stat-label">Presence + Engagement composite mean</div>  
+        ${hasSurvey ? `<div style="margin-top:12px;font-size:0.78rem;color:#718096;line-height:1.8">  
+          Pre-survey: ${surveyData['pre-timestamp'] ? new Date(surveyData['pre-timestamp']).toLocaleString() : 'N/A'}<br>  
+          Post-survey: ${surveyData['post-timestamp'] ? new Date(surveyData['post-timestamp']).toLocaleString() : 'N/A'}  
         </div>` : ''}  
+        <p class="ref-note">Scales adapted from IPQ (Schubert et al., 2001) &amp; AEQ (Fredricks et al., 2004)</p>  
       </div>  
 
       <!-- 卡片访问状态 -->  
       <div class="card">  
         <div class="card-title">Card Exploration · Visit Status</div>  
         <ul class="card-list">  
-          ${CARDS.map(c => `  
+          ${CARDS.map(c => {  
+            const visitEvent = behaviorLog.find(e => e.type === 'card_open' && e.cardId === c.id);  
+            const timeStr = visitEvent ? `at ${visitEvent.elapsed}s` : '';  
+            return `  
             <li class="card-item">  
               <span class="card-dot" style="background:${c.color}"></span>  
               <span class="card-name">${c.name}</span>  
+              <span style="font-size:0.72rem;color:#4a5568;margin-right:4px">${timeStr}</span>  
               <span class="card-status ${visitedIds.includes(c.id) ? 'visited' : 'not-visited'}">  
                 ${visitedIds.includes(c.id) ? '✓ Visited' : 'Not visited'}  
               </span>  
-            </li>  
-          `).join('')}  
+            </li>`;  
+          }).join('')}  
         </ul>  
       </div>  
 
-      <!-- 雷达/柱状图 -->  
+      <!-- 各维度得分柱状图 -->  
       <div class="card">  
         <div class="card-title">Survey Scores · Per Dimension</div>  
         <canvas id="survey-chart"></canvas>  
       </div>  
 
-      <!-- 前后测对比 -->  
+      <!-- 探索时间线 -->  
+      ${hasBehavior ? `  
+      <div class="card full">  
+        <div class="card-title">Exploration Timeline · Behavioral Log</div>  
+        <canvas id="timeline-chart" style="max-height:180px;margin-bottom:20px"></canvas>  
+        <div class="timeline">  
+          ${behaviorLog.slice(0, 20).map(e => `  
+            <div class="timeline-item ${e.type}">  
+              <span class="timeline-time">${formatElapsed(e.elapsed || 0)}</span>  
+              <span class="timeline-label">${EVENT_LABELS[e.type] || e.type}</span>  
+              ${e.cardId ? `<div class="timeline-detail">→ ${CARDS.find(c=>c.id===e.cardId)?.name || e.cardId}</div>` : ''}  
+              ${e.position ? `<div class="timeline-detail">→ position (${e.position.x}, ${e.position.z})</div>` : ''}  
+            </div>  
+          `).join('')}  
+          ${behaviorLog.length > 20 ? `<div style="color:#718096;font-size:0.75rem;padding:8px 0 0 20px">... and ${behaviorLog.length - 20} more events</div>` : ''}  
+        </div>  
+      </div>` : ''}  
+
+      <!-- 前后测对比条形图 -->  
       ${hasSurvey && surveyData.q1 ? `  
       <div class="card full">  
-        <div class="card-title">Pre vs Post · Score Breakdown</div>  
+        <div class="card-title">Score Breakdown · All Items</div>  
         ${Object.keys(SURVEY_LABELS).map(k => {  
           const val = surveyData[k];  
           if (!val) return '';  
           const pct = (val/7)*100;  
-          const colors = { q1:'#63b3ed', q2:'#63b3ed', q3:'#ff6b6b', q4:'#a855f7', q5:'#f59e0b', q6:'#10b981', q7:'#4ecdc4' };  
+          const colors = {  
+            q1:'#63b3ed', q2:'#63b3ed',  
+            q3:'#ff6b6b', q4:'#a855f7',  
+            q5:'#f59e0b', q6:'#10b981', q7:'#4ecdc4'  
+          };  
+          const phase = ['q1','q2'].includes(k) ? 'PRE' : 'POST';  
           return `  
             <div class="score-bar-wrap">  
               <div class="score-bar-label">  
-                <span>${SURVEY_LABELS[k]}</span>  
+                <span><span style="font-size:0.65rem;color:#4a5568;margin-right:6px">${phase}</span>${SURVEY_LABELS[k]}</span>  
                 <span style="color:#fff;font-weight:600">${val} / 7</span>  
               </div>  
               <div class="score-bar-bg">  
@@ -301,21 +371,25 @@ function render() {
               </div>  
             </div>`;  
         }).join('')}  
+        <p class="ref-note">IPQ = Igroup Presence Questionnaire · BOI = Body Ownership Illusion Scale · AEQ = Academic Engagement Questionnaire</p>  
       </div>` : ''}  
 
     </div>  
 
-    <button class="btn-reset" onclick="resetData()">Reset All Data</button>  
+    <div class="btn-group">  
+      <button class="btn-export" onclick="exportData()">⬇ Export Data (JSON)</button>  
+      <button class="btn-reset" onclick="resetData()">Reset All Data</button>  
+    </div>  
   `;  
 
-  // 渲染Chart.js柱状图  
+  // 渲染维度得分柱状图  
   const surveyKeys = postKeys.filter(k => surveyData[k]);  
   if (surveyKeys.length > 0) {  
     const ctx = document.getElementById('survey-chart').getContext('2d');  
     new Chart(ctx, {  
       type: 'bar',  
       data: {  
-        labels: surveyKeys.map(k => SURVEY_LABELS[k]),  
+        labels: surveyKeys.map(k => SURVEY_LABELS[k].replace(' (IPQ)','').replace(' (BOI)','').replace(' (AEQ)','')),  
         datasets: [{  
           label: 'Score (max 7)',  
           data: surveyKeys.map(k => surveyData[k]),  
@@ -338,18 +412,88 @@ function render() {
             grid: { display: false }  
           }  
         },  
+        plugins: { legend: { display: false } }  
+      }  
+    });  
+  }  
+
+  // 渲染时间线散点图（卡片开启事件）  
+  const cardEvents = JSON.parse(localStorage.getItem('vr-behavior-log') || '[]')  
+    .filter(e => e.type === 'card_open');  
+
+  if (cardEvents.length > 0 && document.getElementById('timeline-chart')) {  
+    const tlCtx = document.getElementById('timeline-chart').getContext('2d');  
+    const cardColors = { 'card-1':'#ff6b6b','card-2':'#4ecdc4','card-3':'#a855f7','card-4':'#f59e0b','card-5':'#10b981' };  
+
+    new Chart(tlCtx, {  
+      type: 'scatter',  
+      data: {  
+        datasets: CARDS.map(c => {  
+          const events = cardEvents.filter(e => e.cardId === c.id);  
+          return {  
+            label: c.name,  
+            data: events.map(e => ({ x: e.elapsed, y: parseInt(c.id.split('-')[1]) })),  
+            backgroundColor: c.color,  
+            pointRadius: 10,  
+            pointHoverRadius: 13,  
+          };  
+        })  
+      },  
+      options: {  
+        responsive: true,  
+        scales: {  
+          x: {  
+            title: { display: true, text: 'Elapsed time (seconds)', color: '#718096' },  
+            ticks: { color: '#718096' },  
+            grid: { color: 'rgba(255,255,255,0.05)' }  
+          },  
+          y: {  
+            min: 0, max: 6,  
+            ticks: {  
+              color: '#718096',  
+              stepSize: 1,  
+              callback: v => CARDS[v-1]?.name.split(' ')[1] || ''  
+            },  
+            grid: { color: 'rgba(255,255,255,0.05)' }  
+          }  
+        },  
         plugins: {  
-          legend: { display: false }  
+          legend: { display: false },  
+          tooltip: {  
+            callbacks: {  
+              label: ctx => `${CARDS[ctx.raw.y-1]?.name} at ${ctx.raw.x}s`  
+            }  
+          }  
         }  
       }  
     });  
   }  
 }  
 
+// ─── 导出 JSON ────────────────────────────────────────────────  
+function exportData() {  
+  const exportPayload = {  
+    exportedAt: new Date().toISOString(),  
+    participantId: 'P-' + Math.random().toString(36).substr(2,6).toUpperCase(),  
+    surveyData:    JSON.parse(localStorage.getItem('vr-survey-data') || '{}'),  
+    progressData:  JSON.parse(localStorage.getItem('vr-learning-progress') || '{}'),  
+    behaviorLog:   JSON.parse(localStorage.getItem('vr-behavior-log') || '[]'),  
+  };  
+
+  const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });  
+  const url  = URL.createObjectURL(blob);  
+  const a    = document.createElement('a');  
+  a.href     = url;  
+  a.download = `vr-learning-data-${Date.now()}.json`;  
+  a.click();  
+  URL.revokeObjectURL(url);  
+}  
+
 function resetData() {  
   if (confirm('Are you sure you want to clear all experiment data?')) {  
     localStorage.removeItem('vr-learning-progress');  
     localStorage.removeItem('vr-survey-data');  
+    localStorage.removeItem('vr-behavior-log');  
     render();  
   }  
 }  
