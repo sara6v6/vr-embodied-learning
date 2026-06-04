@@ -19,70 +19,60 @@ The design is informed by research on VR presence and embodied cognition, partic
 ---
 ## Research Framework
 
-```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "background": "#ffffff", "primaryTextColor": "#0f172a", "lineColor": "#64748b"}}}%%
+```mermaid  
+flowchart LR  
+    A["📚 Theory\nEmbodied Cognition\nWilson 2002 · Varela 1991"]  
+    B["🏫 VR Environment\nImmersive Classroom\nA-Frame WebVR"]  
+    C["👁️ Interaction\nGaze · Teleport · Avatar"]  
+    D["📊 Measure\nLikert Survey · Log"]  
+    E["📈 Results\nPresence · Engagement"]  
 
-flowchart LR
-    A["📚 Theory Foundation<br/>Embodied Cognition<br/><sub>Wilson 2002 · Varela 1991</sub>"]
-    B["🏫 VR Environment<br/>Immersive Classroom<br/><sub>A-Frame WebVR</sub>"]
-    C["👁️ Embodied Interaction<br/>Gaze · Teleport · Avatar<br/><sub>Cards · Movement · Hands</sub>"]
-    D["📊 Engagement Measure<br/>Likert Survey<br/><sub>LocalStorage Tracking</sub>"]
-    E["📈 Analytical Output<br/>Results Dashboard<br/><sub>Presence · Engagement</sub>"]
+    A -->|Concept| B  
+    B -->|Context| C  
+    C -->|Behavior| D  
+    D -->|Data| E  
 
-    A -->|conceptual basis| B
-    B -->|learning context| C
-    C -->|behavioral evidence| D
-    D -->|interpretable data| E
+    classDef theory fill:#eff6ff,color:#1e3a8a,stroke:#2563eb,stroke-width:2px  
+    classDef design fill:#dcfce7,color:#065f46,stroke:#16a34a,stroke-width:2px  
+    classDef interact fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px  
+    classDef assess fill:#fffbeb,color:#78350f,stroke:#d97706,stroke-width:2px  
+    classDef output fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px  
 
-    classDef theory fill:#eff6ff,color:#1e3a8a,stroke:#2563eb,stroke-width:2px;
-    classDef design fill:#ecfdf5,color:#065f46,stroke:#059669,stroke-width:2px;
-    classDef interaction fill:#f5f3ff,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
-    classDef assessment fill:#fffbeb,color:#78350f,stroke:#d97706,stroke-width:2px;
-    classDef output fill:#fef2f2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px;
-
-    class A theory;
-    class B design;
-    class C interaction;
-    class D assessment;
-    class E output;
-
-    linkStyle 0 stroke:#2563eb,stroke-width:2px;
-    linkStyle 1 stroke:#059669,stroke-width:2px;
-    linkStyle 2 stroke:#7c3aed,stroke-width:2px;
-    linkStyle 3 stroke:#d97706,stroke-width:2px;
+    class A theory  
+    class B design  
+    class C interact  
+    class D assess  
+    class E output  
 ```
 ---
 ## User Flow
 
-```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "background": "#ffffff", "actorBorder": "#334155", "actorBkg": "#f8fafc", "actorTextColor": "#0f172a", "signalColor": "#475569", "signalTextColor": "#0f172a", "noteBkgColor": "#f1f5f9", "noteTextColor": "#0f172a", "activationBorderColor": "#64748b", "activationBkgColor": "#e2e8f0"}}}%%
+```mermaid  
+sequenceDiagram  
+    autonumber  
+    participant U as User  
+    participant S as survey.html  
+    participant V as VR Scene  
+    participant R as results.html  
 
-sequenceDiagram
-    autonumber
+    Note over U,S: Pre-learning measurement  
+    U->>S: Complete pre-survey (2 items)  
 
-    participant U as 🧑 User
-    participant S as 📝 survey.html
-    participant V as 🕶️ VR Scene
-    participant R as 📊 results.html
+    Note over S,V: Transition to immersive learning  
+    S->>V: Enter VR classroom  
 
-    Note over U,S: Pre-learning measurement
-    U->>S: Complete pre-survey<br/>(2 engagement baseline items)
+    Note over V: Embodied interaction phase  
+    V->>V: Gaze interaction — unlock knowledge cards  
+    V->>V: Teleportation — explore classroom space  
+    V->>V: Avatar hands — support embodied presence  
 
-    Note over S,V: Transition into immersive learning
-    S->>V: Enter VR classroom scene
+    Note over V,S: Post-learning measurement  
+    V-->>S: Return to survey  
+    S->>S: Complete post-survey (5 items)  
 
-    Note over V: Embodied interaction phase
-    V->>V: Gaze interaction<br/>Unlock knowledge cards
-    V->>V: Teleportation<br/>Explore classroom space
-    V->>V: Avatar hands<br/>Support embodied presence
-
-    Note over V,S: Post-learning measurement
-    V-->>S: Return to survey interface
-    S->>S: Complete post-survey<br/>(5 engagement items)
-
-    Note over S,R: Data processing and visualization
-    S->>R: Submit responses<br/>Auto redirect
-    R->>R: Render progress and score charts
+    Note over S,R: Data processing and visualization  
+    S->>R: Submit responses — auto redirect  
+    R->>R: Render progress and score charts  
 ```
 ---
 
