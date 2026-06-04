@@ -173,9 +173,24 @@ vr-embodied-learning/
 
 ## Author
 
-**Xiala Dilimulati**
-B.S. Educational Technology, Shanghai Normal University
+**Xiala Dilimulati**  
+B.S. Educational Technology, Shanghai Normal University  
 Research interest: VR presence, embodied learning, human-computer interaction
+
+---
+
+## Limitations
+
+This prototype is an exploratory proof-of-concept rather than a controlled empirical study. Several limitations should be noted:
+
+- **Sample size**: Currently designed for informal self-report; no formal participant recruitment has been conducted. Findings from the survey data should not be generalised.
+- **Single-item presence measure**: Spatial presence (Q3) is captured by one adapted IPQ item rather than the full scale, which reduces construct validity.
+- **Self-selection bias**: Participants access the scene voluntarily via a public link, introducing self-selection effects that may inflate engagement scores.
+- **localStorage dependency**: Survey and behavioral data are stored client-side and are not persisted across devices or browser sessions; data loss is possible if the browser cache is cleared.
+- **WebVR constraints**: The scene runs in a standard browser without a dedicated VR headset, limiting immersion compared to head-mounted display conditions studied in the presence literature.
+- **No inter-rater reliability**: Knowledge card content and survey item wording were designed by a single researcher and have not undergone expert review or pilot validation.
+
+These limitations are acknowledged as inherent to a solo-developed, browser-based prototype and represent directions for refinement in future work.
 
 ---
 
