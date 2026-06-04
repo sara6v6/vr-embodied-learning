@@ -18,63 +18,58 @@ The design is informed by research on VR presence and embodied cognition, partic
 
 ---
 ## Research Framework
+```mermaid
+flowchart LR
+    A["📚 Theory\nEmbodied Cognition\nWilson 2002 · Varela 1991"]
+    B["🏫 VR Environment\nImmersive Classroom\nA-Frame WebVR"]
+    C["👁️ Interaction\nGaze · Teleport · Avatar"]
+    D["📊 Measure\nLikert Survey · Log"]
+    E["📈 Results\nPresence · Engagement"]
 
-```mermaid  
-flowchart LR  
-    A["📚 Theory\nEmbodied Cognition\nWilson 2002 · Varela 1991"]  
-    B["🏫 VR Environment\nImmersive Classroom\nA-Frame WebVR"]  
-    C["👁️ Interaction\nGaze · Teleport · Avatar"]  
-    D["📊 Measure\nLikert Survey · Log"]  
-    E["📈 Results\nPresence · Engagement"]  
+    A -->|Concept| B
+    B -->|Context| C
+    C -->|Behavior| D
+    D -->|Data| E
 
-    A -->|Concept| B  
-    B -->|Context| C  
-    C -->|Behavior| D  
-    D -->|Data| E  
+    classDef theory fill:#eff6ff,color:#1e3a8a,stroke:#2563eb,stroke-width:2px
+    classDef design fill:#dcfce7,color:#065f46,stroke:#16a34a,stroke-width:2px
+    classDef interact fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px
+    classDef assess fill:#fffbeb,color:#78350f,stroke:#d97706,stroke-width:2px
+    classDef output fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px
 
-    classDef theory fill:#eff6ff,color:#1e3a8a,stroke:#2563eb,stroke-width:2px  
-    classDef design fill:#dcfce7,color:#065f46,stroke:#16a34a,stroke-width:2px  
-    classDef interact fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px  
-    classDef assess fill:#fffbeb,color:#78350f,stroke:#d97706,stroke-width:2px  
-    classDef output fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px  
-
-    class A theory  
-    class B design  
-    class C interact  
-    class D assess  
-    class E output  
+    class A theory
+    class B design
+    class C interact
+    class D assess
+    class E output
 ```
 ---
 ## User Flow
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as survey.html
+    participant V as VR Scene
+    participant R as results.html
 
-```mermaid  
-sequenceDiagram  
-    autonumber  
-    participant U as User  
-    participant S as survey.html  
-    participant V as VR Scene  
-    participant R as results.html  
+    Note over S: Pre-learning measurement
+    U->>S: Complete pre-survey (2 items)
 
-    Note over U,S: Pre-learning measurement  
-    U->>S: Complete pre-survey (2 items)  
+    Note over V: Transition to immersive learning
+    S->>V: Enter VR classroom
+    V->>V: Gaze interaction — unlock knowledge cards
+    V->>V: Teleportation — explore classroom space
+    V->>V: Avatar hands — support embodied presence
 
-    Note over S,V: Transition to immersive learning  
-    S->>V: Enter VR classroom  
+    Note over S: Post-learning measurement
+    V-->>S: Return to survey
+    S->>S: Complete post-survey (5 items)
 
-    Note over V: Embodied interaction phase  
-    V->>V: Gaze interaction — unlock knowledge cards  
-    V->>V: Teleportation — explore classroom space  
-    V->>V: Avatar hands — support embodied presence  
-
-    Note over V,S: Post-learning measurement  
-    V-->>S: Return to survey  
-    S->>S: Complete post-survey (5 items)  
-
-    Note over S,R: Data processing and visualization  
-    S->>R: Submit responses — auto redirect  
-    R->>R: Render progress and score charts  
+    Note over R: Data processing and visualization
+    S->>R: Submit responses — auto redirect
+    R->>R: Render progress and score charts
 ```
----
 
 ## Demo Features
 
