@@ -17,77 +17,138 @@ The design is informed by research on VR presence and embodied cognition, partic
 - Interactive affordances in VR learning spaces
 
 ---
-## Research Framework – Poster Style
+## Research Framework
 
 ```mermaid
-flowchart LR
-    %% 节点定义
-    A["📚 **Embodied Cognition Theory**<br>Wilson 2002 · Varela 1991"]
-    B["🏫 **VR Scene Design**<br>Immersive Classroom<br>A-Frame WebVR"]
-    C["👁️ **Gaze & Teleport & Avatar**<br>Gaze Interaction<br>Teleportation · Avatar Hands"]
-    D["📊 **Learning Engagement**<br>Likert Survey<br>LocalStorage Tracking"]
-    E["📈 **Data Visualization**<br>Results Dashboard<br>Presence & Engagement"]
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "background": "#ffffff", "primaryColor": "#f8fafc", "primaryTextColor": "#0f172a", "lineColor": "#64748b"}}}%%
 
-    %% 流程连接
-    A -->|Theory→Design| B
-    B -->|Design→Interaction| C
-    C -->|Interaction→Assessment| D
-    D -->|Assessment→Visualization| E
+flowchart TD
+    T["RESEARCH FRAMEWORK<br/>Embodied Cognition × VR Learning Engagement"]
 
-    %% 样式定义（模拟渐变 + 阴影感）
-    classDef theory fill:#0f172a,color:#60a5fa,stroke:#1e40af,stroke-width:3px,rx:25,ry:25,font-weight:bold,stroke-dasharray: 0 0;
-    classDef design fill:#064e3b,color:#a7f3d0,stroke:#047857,stroke-width:3px,rx:25,ry:25,font-weight:bold;
-    classDef interaction fill:#4c1d95,color:#ddd6fe,stroke:#6b21a8,stroke-width:3px,rx:25,ry:25,font-weight:bold;
-    classDef assessment fill:#78350f,color:#fef3c7,stroke:#a16207,stroke-width:3px,rx:25,ry:25,font-weight:bold;
-    classDef visualization fill:#7f1d1d,color:#fecaca,stroke:#b91c1c,stroke-width:3px,rx:25,ry:25,font-weight:bold;
+    subgraph P1["01  Theoretical Foundation"]
+        A["📚 Embodied Cognition Theory<br/>Wilson 2002 · Varela 1991"]
+    end
 
-    class A theory
-    class B design
-    class C interaction
-    class D assessment
-    class E visualization
+    subgraph P2["02  VR Learning Environment"]
+        B["🏫 VR Scene Design<br/>Immersive Classroom<br/>A-Frame WebVR"]
+    end
 
-    %% 高亮箭头（虚线和粗线模拟层次）
-    linkStyle 0 stroke:#60a5fa,stroke-width:3px
-    linkStyle 1 stroke:#16a34a,stroke-width:3px,stroke-dasharray: 5 5
-    linkStyle 2 stroke:#8b5cf6,stroke-width:3px
-    linkStyle 3 stroke:#c2410c,stroke-width:3px
+    subgraph P3["03  Embodied Interaction"]
+        C["👁️ Gaze Interaction<br/>Teleportation<br/>Avatar Hands"]
+    end
+
+    subgraph P4["04  Engagement Measurement"]
+        D["📊 Learning Engagement<br/>Likert Survey<br/>LocalStorage Tracking"]
+    end
+
+    subgraph P5["05  Results Interpretation"]
+        E["📈 Data Visualization<br/>Results Dashboard<br/>Presence · Engagement"]
+    end
+
+    T --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    classDef title fill:#020617,color:#f8fafc,stroke:#020617,stroke-width:2px;
+    classDef theory fill:#dbeafe,color:#1e3a8a,stroke:#2563eb,stroke-width:2px;
+    classDef design fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:2px;
+    classDef interaction fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
+    classDef assessment fill:#fef3c7,color:#78350f,stroke:#d97706,stroke-width:2px;
+    classDef result fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px;
+
+    class T title;
+    class A theory;
+    class B design;
+    class C interaction;
+    class D assessment;
+    class E result;
+
+    style P1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style P2 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style P3 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style P4 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+    style P5 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
+
+    linkStyle 0 stroke:#0f172a,stroke-width:3px
+    linkStyle 1 stroke:#2563eb,stroke-width:3px
+    linkStyle 2 stroke:#16a34a,stroke-width:3px
+    linkStyle 3 stroke:#7c3aed,stroke-width:3px
+    linkStyle 4 stroke:#d97706,stroke-width:3px
 ```
 
-## User Flow – Poster Style
+---
+
+## User Flow
 
 ```mermaid
-sequenceDiagram
-    participant U as 🧑 **User**
-    participant S as 📝 **survey.html**
-    participant V as 🕶️ **VR Scene**
-    participant R as 📊 **results.html**
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "background": "#ffffff", "primaryColor": "#f8fafc", "primaryTextColor": "#0f172a", "lineColor": "#64748b"}}}%%
 
-    %% 流程
-    U->>S: 1️⃣ Complete pre-survey (2 items)
-    S->>V: 2️⃣ Enter VR learning scene
-    V->>V: 3️⃣ Gaze interaction unlock knowledge cards
-    V->>V: 4️⃣ Teleport to explore classroom
-    V-->>S: 5️⃣ Return for post-survey (5 items)
-    S->>R: 6️⃣ Submit → auto redirect
-    R->>R: 7️⃣ Display progress + score charts
+flowchart TD
+    H["USER FLOW<br/>Survey → VR Learning → Results Dashboard"]
 
-    %% 背景块区分角色（阴影感）
-    rect rgb(220,235,255)
-        U
-        S
-    end
-    rect rgb(255,220,230)
-        V
-        R
+    subgraph S1["Survey Stage"]
+        U1["🧑 User<br/>Starts the learning task"]
+        U2["📝 survey.html<br/>Complete pre-survey<br/>2 items"]
     end
 
-    %% 高亮箭头模拟动态感
-    Note over U,S: 🔹 Pre & Post Survey
-    Note over V: 🔹 VR Interactions
-    Note over R: 🔹 Results Visualization
+    subgraph S2["VR Learning Stage"]
+        V1["🕶️ VR Scene<br/>Enter immersive classroom"]
+        V2["👁️ Gaze Interaction<br/>Unlock knowledge cards"]
+        V3["🧭 Teleportation<br/>Explore the classroom"]
+        V4["🙌 Avatar Hands<br/>Embodied interaction cues"]
+    end
+
+    subgraph S3["Post-Learning Stage"]
+        P1["📝 survey.html<br/>Complete post-survey<br/>5 items"]
+        P2["📤 Submit<br/>Auto redirect"]
+    end
+
+    subgraph S4["Results Stage"]
+        R1["📊 results.html<br/>Display progress charts"]
+        R2["📈 Dashboard<br/>Presence · Engagement · Score"]
+    end
+
+    H --> U1
+    U1 --> U2
+    U2 --> V1
+    V1 --> V2
+    V2 --> V3
+    V3 --> V4
+    V4 --> P1
+    P1 --> P2
+    P2 --> R1
+    R1 --> R2
+
+    classDef title fill:#020617,color:#f8fafc,stroke:#020617,stroke-width:2px;
+    classDef survey fill:#dbeafe,color:#1e3a8a,stroke:#2563eb,stroke-width:2px;
+    classDef vr fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
+    classDef post fill:#fef3c7,color:#78350f,stroke:#d97706,stroke-width:2px;
+    classDef result fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:2px;
+
+    class H title;
+    class U1,U2 survey;
+    class V1,V2,V3,V4 vr;
+    class P1,P2 post;
+    class R1,R2 result;
+
+    style S1 fill:#f8fafc,stroke:#bfdbfe,stroke-width:2px
+    style S2 fill:#faf5ff,stroke:#ddd6fe,stroke-width:2px
+    style S3 fill:#fffbeb,stroke:#fde68a,stroke-width:2px
+    style S4 fill:#f0fdf4,stroke:#bbf7d0,stroke-width:2px
+
+    linkStyle 0 stroke:#0f172a,stroke-width:3px
+    linkStyle 1 stroke:#2563eb,stroke-width:3px
+    linkStyle 2 stroke:#2563eb,stroke-width:3px
+    linkStyle 3 stroke:#7c3aed,stroke-width:3px
+    linkStyle 4 stroke:#7c3aed,stroke-width:3px
+    linkStyle 5 stroke:#7c3aed,stroke-width:3px
+    linkStyle 6 stroke:#7c3aed,stroke-width:3px
+    linkStyle 7 stroke:#d97706,stroke-width:3px
+    linkStyle 8 stroke:#d97706,stroke-width:3px
+    linkStyle 9 stroke:#16a34a,stroke-width:3px
 ```
-
 ---
 
 ## Demo Features
