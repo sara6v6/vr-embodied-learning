@@ -17,40 +17,75 @@ The design is informed by research on VR presence and embodied cognition, partic
 - Interactive affordances in VR learning spaces
 
 ---
+## Research Framework – Poster Style
 
-## Research Framework
+```mermaid
+flowchart LR
+    %% 节点定义
+    A["📚 **Embodied Cognition Theory**<br>Wilson 2002 · Varela 1991"]
+    B["🏫 **VR Scene Design**<br>Immersive Classroom<br>A-Frame WebVR"]
+    C["👁️ **Gaze & Teleport & Avatar**<br>Gaze Interaction<br>Teleportation · Avatar Hands"]
+    D["📊 **Learning Engagement**<br>Likert Survey<br>LocalStorage Tracking"]
+    E["📈 **Data Visualization**<br>Results Dashboard<br>Presence & Engagement"]
 
-```mermaid  
-flowchart LR  
-    A["📚 Embodied Cognition Theory\nWilson 2002 · Varela 1991"]  
-    --> B["🏫 VR Scene Design\nImmersive Classroom\nA-Frame WebVR"]  
-    B --> C["👁️ Gaze · Teleport · Avatar\nGaze Interaction\nTeleportation · Avatar Hands"]  
-    C --> D["📊 Learning Engagement\nLikert Survey\nLocalStorage Tracking"]  
-    D --> E["📈 Data Visualization\nResults Dashboard\nPresence · Engagement"]  
+    %% 流程连接
+    A -->|Theory→Design| B
+    B -->|Design→Interaction| C
+    C -->|Interaction→Assessment| D
+    D -->|Assessment→Visualization| E
 
-    style A fill:#1a365d,color:#90cdf4,stroke:#63b3ed  
-    style B fill:#1c4532,color:#9ae6b4,stroke:#38a169  
-    style C fill:#44337a,color:#d6bcfa,stroke:#9f7aea  
-    style D fill:#744210,color:#fbd38d,stroke:#d69e2e  
-    style E fill:#63171b,color:#feb2b2,stroke:#fc8181  
+    %% 样式定义（模拟渐变 + 阴影感）
+    classDef theory fill:#0f172a,color:#60a5fa,stroke:#1e40af,stroke-width:3px,rx:25,ry:25,font-weight:bold,stroke-dasharray: 0 0;
+    classDef design fill:#064e3b,color:#a7f3d0,stroke:#047857,stroke-width:3px,rx:25,ry:25,font-weight:bold;
+    classDef interaction fill:#4c1d95,color:#ddd6fe,stroke:#6b21a8,stroke-width:3px,rx:25,ry:25,font-weight:bold;
+    classDef assessment fill:#78350f,color:#fef3c7,stroke:#a16207,stroke-width:3px,rx:25,ry:25,font-weight:bold;
+    classDef visualization fill:#7f1d1d,color:#fecaca,stroke:#b91c1c,stroke-width:3px,rx:25,ry:25,font-weight:bold;
+
+    class A theory
+    class B design
+    class C interaction
+    class D assessment
+    class E visualization
+
+    %% 高亮箭头（虚线和粗线模拟层次）
+    linkStyle 0 stroke:#60a5fa,stroke-width:3px
+    linkStyle 1 stroke:#16a34a,stroke-width:3px,stroke-dasharray: 5 5
+    linkStyle 2 stroke:#8b5cf6,stroke-width:3px
+    linkStyle 3 stroke:#c2410c,stroke-width:3px
 ```
 
-## User Flow
+## User Flow – Poster Style
 
-```mermaid  
-sequenceDiagram  
-    participant U as User  
-    participant S as survey.html  
-    participant V as VR Scene  
-    participant R as results.html  
+```mermaid
+sequenceDiagram
+    participant U as 🧑 **User**
+    participant S as 📝 **survey.html**
+    participant V as 🕶️ **VR Scene**
+    participant R as 📊 **results.html**
 
-    U->>S: Complete pre-survey (2 items)  
-    S->>V: Enter VR learning scene  
-    V->>V: Gaze interaction to unlock knowledge cards  
-    V->>V: Teleport to explore classroom  
-    V-->>S: Return to complete post-survey (5 items)  
-    S->>R: Submit → auto redirect  
-    R->>R: Display progress + score charts  
+    %% 流程
+    U->>S: 1️⃣ Complete pre-survey (2 items)
+    S->>V: 2️⃣ Enter VR learning scene
+    V->>V: 3️⃣ Gaze interaction unlock knowledge cards
+    V->>V: 4️⃣ Teleport to explore classroom
+    V-->>S: 5️⃣ Return for post-survey (5 items)
+    S->>R: 6️⃣ Submit → auto redirect
+    R->>R: 7️⃣ Display progress + score charts
+
+    %% 背景块区分角色（阴影感）
+    rect rgb(220,235,255)
+        U
+        S
+    end
+    rect rgb(255,220,230)
+        V
+        R
+    end
+
+    %% 高亮箭头模拟动态感
+    Note over U,S: 🔹 Pre & Post Survey
+    Note over V: 🔹 VR Interactions
+    Note over R: 🔹 Results Visualization
 ```
 
 ---
