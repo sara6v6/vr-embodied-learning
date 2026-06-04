@@ -20,62 +20,29 @@ The design is informed by research on VR presence and embodied cognition, partic
 ## Research Framework
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "background": "#ffffff", "primaryColor": "#f8fafc", "primaryTextColor": "#0f172a", "lineColor": "#64748b"}}}%%
+flowchart LR
+    %% 节点
+    A["📚 Theory<br>Embodied Cognition"] 
+    B["🏫 Design<br>VR Scene / Classroom"] 
+    C["👁️ Interaction<br>Gaze / Teleport / Avatar"] 
+    D["📊 Assessment<br>Engagement Survey"] 
+    E["📈 Results<br>Dashboard / Visualization"]
 
-flowchart TD
-    T["RESEARCH FRAMEWORK<br/>Embodied Cognition × VR Learning Engagement"]
+    %% 流程
+    A --> B --> C --> D --> E
 
-    subgraph P1["01  Theoretical Foundation"]
-        A["📚 Embodied Cognition Theory<br/>Wilson 2002 · Varela 1991"]
-    end
+    %% 样式
+    classDef theory fill:#eff6ff,color:#1e3a8a,stroke:#3b82f6,stroke-width:2px,rx:15,ry:15,font-weight:bold;
+    classDef design fill:#dcfce7,color:#065f46,stroke:#16a34a,stroke-width:2px,rx:15,ry:15,font-weight:bold;
+    classDef interaction fill:#ede9fe,color:#5b21b6,stroke:#7c3aed,stroke-width:2px,rx:15,ry:15,font-weight:bold;
+    classDef assessment fill:#fef9c3,color:#713f12,stroke:#d97706,stroke-width:2px,rx:15,ry:15,font-weight:bold;
+    classDef results fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px,rx:15,ry:15,font-weight:bold;
 
-    subgraph P2["02  VR Learning Environment"]
-        B["🏫 VR Scene Design<br/>Immersive Classroom<br/>A-Frame WebVR"]
-    end
-
-    subgraph P3["03  Embodied Interaction"]
-        C["👁️ Gaze Interaction<br/>Teleportation<br/>Avatar Hands"]
-    end
-
-    subgraph P4["04  Engagement Measurement"]
-        D["📊 Learning Engagement<br/>Likert Survey<br/>LocalStorage Tracking"]
-    end
-
-    subgraph P5["05  Results Interpretation"]
-        E["📈 Data Visualization<br/>Results Dashboard<br/>Presence · Engagement"]
-    end
-
-    T --> A
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-
-    classDef title fill:#020617,color:#f8fafc,stroke:#020617,stroke-width:2px;
-    classDef theory fill:#dbeafe,color:#1e3a8a,stroke:#2563eb,stroke-width:2px;
-    classDef design fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:2px;
-    classDef interaction fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
-    classDef assessment fill:#fef3c7,color:#78350f,stroke:#d97706,stroke-width:2px;
-    classDef result fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px;
-
-    class T title;
-    class A theory;
-    class B design;
-    class C interaction;
-    class D assessment;
-    class E result;
-
-    style P1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-    style P2 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-    style P3 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-    style P4 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-    style P5 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-
-    linkStyle 0 stroke:#0f172a,stroke-width:3px
-    linkStyle 1 stroke:#2563eb,stroke-width:3px
-    linkStyle 2 stroke:#16a34a,stroke-width:3px
-    linkStyle 3 stroke:#7c3aed,stroke-width:3px
-    linkStyle 4 stroke:#d97706,stroke-width:3px
+    class A theory
+    class B design
+    class C interaction
+    class D assessment
+    class E results
 ```
 
 ---
@@ -83,71 +50,27 @@ flowchart TD
 ## User Flow
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "background": "#ffffff", "primaryColor": "#f8fafc", "primaryTextColor": "#0f172a", "lineColor": "#64748b"}}}%%
+flowchart LR
+    U["🧑 User"] --> S["📝 Pre-survey (2 items)"]
+    S --> V["🕶️ VR Scene"]
+    V --> I["👁️ Interaction: Gaze / Teleport / Avatar"]
+    I --> P["📝 Post-survey (5 items)"]
+    P --> R["📊 Results Dashboard"]
 
-flowchart TD
-    H["USER FLOW<br/>Survey → VR Learning → Results Dashboard"]
+    %% 样式
+    classDef user fill:#e0f2fe,color:#0c4a6e,stroke:#0284c7,stroke-width:2px,rx:12,ry:12,font-weight:bold;
+    classDef survey fill:#fefce8,color:#713f12,stroke:#facc15,stroke-width:2px,rx:12,ry:12,font-weight:bold;
+    classDef vr fill:#f5f3ff,color:#5b21b6,stroke:#7c3aed,stroke-width:2px,rx:12,ry:12,font-weight:bold;
+    classDef interaction fill:#ede9fe,color:#5b21b6,stroke:#7c3aed,stroke-width:2px,rx:12,ry:12,font-weight:bold;
+    classDef post fill:#fefce8,color:#713f12,stroke:#fbbf24,stroke-width:2px,rx:12,ry:12,font-weight:bold;
+    classDef results fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px,rx:12,ry:12,font-weight:bold;
 
-    subgraph S1["Survey Stage"]
-        U1["🧑 User<br/>Starts the learning task"]
-        U2["📝 survey.html<br/>Complete pre-survey<br/>2 items"]
-    end
-
-    subgraph S2["VR Learning Stage"]
-        V1["🕶️ VR Scene<br/>Enter immersive classroom"]
-        V2["👁️ Gaze Interaction<br/>Unlock knowledge cards"]
-        V3["🧭 Teleportation<br/>Explore the classroom"]
-        V4["🙌 Avatar Hands<br/>Embodied interaction cues"]
-    end
-
-    subgraph S3["Post-Learning Stage"]
-        P1["📝 survey.html<br/>Complete post-survey<br/>5 items"]
-        P2["📤 Submit<br/>Auto redirect"]
-    end
-
-    subgraph S4["Results Stage"]
-        R1["📊 results.html<br/>Display progress charts"]
-        R2["📈 Dashboard<br/>Presence · Engagement · Score"]
-    end
-
-    H --> U1
-    U1 --> U2
-    U2 --> V1
-    V1 --> V2
-    V2 --> V3
-    V3 --> V4
-    V4 --> P1
-    P1 --> P2
-    P2 --> R1
-    R1 --> R2
-
-    classDef title fill:#020617,color:#f8fafc,stroke:#020617,stroke-width:2px;
-    classDef survey fill:#dbeafe,color:#1e3a8a,stroke:#2563eb,stroke-width:2px;
-    classDef vr fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
-    classDef post fill:#fef3c7,color:#78350f,stroke:#d97706,stroke-width:2px;
-    classDef result fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:2px;
-
-    class H title;
-    class U1,U2 survey;
-    class V1,V2,V3,V4 vr;
-    class P1,P2 post;
-    class R1,R2 result;
-
-    style S1 fill:#f8fafc,stroke:#bfdbfe,stroke-width:2px
-    style S2 fill:#faf5ff,stroke:#ddd6fe,stroke-width:2px
-    style S3 fill:#fffbeb,stroke:#fde68a,stroke-width:2px
-    style S4 fill:#f0fdf4,stroke:#bbf7d0,stroke-width:2px
-
-    linkStyle 0 stroke:#0f172a,stroke-width:3px
-    linkStyle 1 stroke:#2563eb,stroke-width:3px
-    linkStyle 2 stroke:#2563eb,stroke-width:3px
-    linkStyle 3 stroke:#7c3aed,stroke-width:3px
-    linkStyle 4 stroke:#7c3aed,stroke-width:3px
-    linkStyle 5 stroke:#7c3aed,stroke-width:3px
-    linkStyle 6 stroke:#7c3aed,stroke-width:3px
-    linkStyle 7 stroke:#d97706,stroke-width:3px
-    linkStyle 8 stroke:#d97706,stroke-width:3px
-    linkStyle 9 stroke:#16a34a,stroke-width:3px
+    class U user
+    class S survey
+    class V vr
+    class I interaction
+    class P post
+    class R results
 ```
 ---
 
