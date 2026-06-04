@@ -1,9 +1,9 @@
 # VR Embodied Learning Scene
 **A WebVR prototype exploring embodied cognition and presence in immersive learning environments**
 
-🔗 **Live Demo:** https://sara6v6.github.io/vr-embodied-learning/
-📋 **Survey:** https://sara6v6.github.io/vr-embodied-learning/survey.html
-📊 **Results:** https://sara6v6.github.io/vr-embodied-learning/results.html
+🔗 **Live Demo:** https://sara6v6.github.io/vr-embodied-learning/  
+📋 **Survey:** https://sara6v6.github.io/vr-embodied-learning/survey.html  
+📊 **Results:** https://sara6v6.github.io/vr-embodied-learning/results.html  
 
 ---
 
@@ -142,13 +142,15 @@ Two-condition quasi-experimental design. Participants are assigned to either the
 
 ## Repository Structure
 
-vr-embodied-learning/
-├── index.html — Experimental condition: embodied VR scene
-├── index-control.html — Control condition: text-based VR scene
-├── survey.html — Pre/post Likert survey (shared)
-├── results.html — Data visualization dashboard
-├── analysis.py — Offline statistical analysis (Python)
-└── README.md
+```  
+vr-embodied-learning/  
+├── index.html          — Experimental condition: embodied VR scene  
+├── index-control.html  — Control condition: text-based VR scene  
+├── survey.html         — Pre/post Likert survey (shared)  
+├── results.html        — Data visualization dashboard  
+├── analysis.py         — Offline statistical analysis (Python)  
+└── README.md  
+```
 
 
 ---
