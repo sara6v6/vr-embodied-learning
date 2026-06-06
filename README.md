@@ -8,9 +8,7 @@
 
 ## Abstract
 
-This project is a browser-based WebVR research prototype investigating how embodied interaction and virtual presence may shape cognitive engagement and perceived learning. It compares an embodied VR condition with a control condition and records self-report responses and behavioral interaction logs for exploratory analysis. The prototype is intended as a proof of concept for future HCI and VR learning research, not as a completed empirical study.
-
-The prototype is a solo-developed research practice artifact. It does not claim statistically valid findings, validated outcomes, or completed human-subjects research. Its purpose is to make a future pilot study or controlled evaluation concrete, inspectable, and browser-accessible.
+This project is a browser-based WebVR research prototype investigating how embodied interaction and virtual presence may shape cognitive engagement and perceived learning. It implements a between-condition comparison — an embodied VR condition with camera-attached avatar hands, gaze-directed reach feedback, and teleportation affordances, versus a control condition without these embodied cues — and records self-report ratings and behavioral interaction logs for exploratory analysis. The prototype is a solo-developed proof of concept intended for design reflection and future pilot testing; it does not claim statistically valid findings or completed human-subjects research.
 
 ## Live Demo
 
@@ -36,7 +34,7 @@ The embodied VR condition includes first-person avatar hands attached to the cam
 
 These are exploratory research questions. The prototype is designed for small-scale pilot testing and design reflection, not for statistically powered empirical claims.
 
-## Reviewer Flow
+## How to Use the Prototype
 
 1. Read the project overview.
 2. Complete the pre-survey and choose a condition.
@@ -124,31 +122,25 @@ These limitations are stated as research transparency. They define what a future
 - [Local data schema](docs/data-schema.md)
 - [Ethics and limitations](docs/ethics-and-limitations.md)
 
-## Screenshots
-
-Real screenshots have not yet been added.
-
-- **VR scene:** placeholder for a real capture of the embodied VR condition
-- **Survey flow:** placeholder for a real capture of the pre/post self-report instrument
-- **Results dashboard:** placeholder for a real capture using an actual local session
-
-Empty screenshot and figure directories are retained at `assets/screenshots/` and `assets/figures/`.
-
 ## Repository Structure
 
 ```text
 vr-embodied-learning/
-├── index.html
-├── index-control.html
-├── survey.html
-├── results.html
-├── analysis.py
+├── index.html              # Embodied VR condition
+├── index-control.html      # Control condition
+├── survey.html             # Pre/post self-report instrument
+├── results.html            # Local results dashboard
+├── analysis.py             # Offline descriptive analysis
 ├── assets/
-│   ├── css/research-ui.css
-│   ├── js/research-storage.js
+│   ├── css/
+│   ├── js/
 │   ├── screenshots/
 │   └── figures/
 └── docs/
+    ├── research-design.md
+    ├── user-flow.md
+    ├── data-schema.md
+    └── ethics-and-limitations.md
 ```
 
 ## Author Note
@@ -158,26 +150,14 @@ vr-embodied-learning/
 - **Research interest:** VR presence, embodied cognition, human augmentation, HCI, and learning technology
 - **Status:** undergraduate solo research prototype, 2025
 
-## Portfolio Summary
-
-**Title:** VR Embodied Learning Prototype
-
-**One-sentence summary:** A browser-based WebVR research prototype exploring how embodied interaction, spatial presence, and body ownership may shape cognitive engagement and perceived learning.
-
-**My contribution:** Concept design, WebVR implementation, survey flow, behavioral logging, results dashboard, and exploratory analysis script.
-
-**Technologies:** A-Frame, JavaScript, localStorage, Chart.js, Python
-
-**Status:** Exploratory prototype for graduate research preparation.
-
 ## References
 
 The design is theoretically grounded by foundational work including:
 
-- Botvinick, M., & Cohen, J. (1998). Rubber hand illusion and body ownership.
-- Witmer, B. G., & Singer, M. J. (1998). Presence in virtual environments.
-- Wilson, M. (2002). Embodied cognition.
-- Dede, C. (2009). Immersive interfaces for engagement and learning.
-- Slater, M. (2009). Place illusion and plausibility illusion in immersive virtual environments.
+- Botvinick, M., & Cohen, J. (1998). Rubber hands feel touch that eyes can see. Nature, 391(6669), 756.
+- Witmer, B. G., & Singer, M. J. (1998). Measuring presence in virtual environments: A presence questionnaire. Presence, 7(3), 225–240.
+- Wilson, M. (2002). Six views of embodied cognition. Psychonomic Bulletin & Review, 9(4), 625–636.
+- Dede, C. (2009). Immersive interfaces for engagement and learning. Science, 323(5910), 66–69.
+- Slater, M. (2009). Place illusion and plausibility can lead to realistic behaviour in immersive virtual environments. Philosophical Transactions of the Royal Society B: Biological Sciences, 364(1535), 3549–3557.
 
 These references provide foundational context rather than a complete literature review. Recent literature on VR learning, embodiment, and human augmentation should be reviewed and added before formal research submission.

@@ -54,7 +54,7 @@
 
     <form id="survey-form">
       <section id="phase-pre" aria-labelledby="pre-title">
-        <div class="card question">
+        <div class="card condition-card">
           <span class="construct">Condition selection</span>
           <h2 id="pre-title">Choose one comparison condition</h2>
           <p class="muted small">The embodied VR condition includes avatar hands, gaze interaction, and teleportation. The control condition presents the same core learning topics with click-based interaction and without embodied affordances.</p>
@@ -70,6 +70,15 @@
         <div class="card">
           <h2>Enter the selected condition</h2>
           <p class="muted">Submit the pre-survey first. The button below will then open the selected condition in this tab.</p>
+          <div class="desktop-guide">
+            <strong>Desktop interaction guide</strong>
+            <ul>
+              <li>Drag the mouse to look around.</li>
+              <li>In the embodied condition, move the center reticle onto a labeled sphere and hold still for 2 seconds to open a card.</li>
+              <li>Click the floor to teleport, then use the Post-survey link when finished.</li>
+              <li>Recommended browser: Chrome or Edge.</li>
+            </ul>
+          </div>
           <div class="button-row">
             <button type="button" onclick="submitSurvey()">Save pre-survey</button>
             <a id="condition-link" class="button secondary" href="index.html">Open embodied VR condition</a>
@@ -122,8 +131,8 @@
         const value = index + 1;
         return `<label><input type="radio" name="${id}" value="${value}"><span>${value}</span></label>`;
       }).join("");
-      return `<fieldset class="card question">
-        <legend><span class="construct">${construct}</span>${text}</legend>
+      return `<fieldset class="card question" aria-label="${construct}: ${text}">
+        <div class="question-text"><span class="construct">${construct}</span>${text}</div>
         <div class="likert">${options}</div>
         <div class="scale-ends"><span>Strongly disagree</span><span>Strongly agree</span></div>
       </fieldset>`;

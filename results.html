@@ -98,7 +98,8 @@
       const surveyEntries = Object.entries(SURVEY_CONSTRUCTS).filter(([key]) => Number.isFinite(Number(surveyData[key])));
       const dashboard = document.getElementById("dashboard");
       const interactionCount = behaviorLog.filter((event) => !["session_start", "session_end"].includes(event.type)).length;
-      const testSessionNote = teleports > 20 || interactionCount > 60
+      const sessionDuration = getSessionDuration(behaviorLog);
+      const testSessionNote = teleports > 20 || interactionCount > Math.max(40, sessionDuration * 1.5)
         ? `<div class="metric-note">This session may reflect developer testing or repeated interaction.</div>`
         : "";
       const emptyLog = "No local interaction log found. Complete a condition session first.";
@@ -109,7 +110,7 @@
         <div class="grid three">
           <article class="card metric-card ${condition}"><p class="section-label">Condition</p><div class="stat" style="font-size:1.45rem">${conditionLabel}</div><p class="muted small">Selected for this local session.</p></article>
           <article class="card metric-card"><p class="section-label">Visited cards</p><div class="stat">${visitedIds.length}<span class="muted" style="font-size:1rem"> / 5</span></div><p class="muted small">Unique knowledge cards opened.</p></article>
-          <article class="card metric-card"><p class="section-label">Session duration</p><div class="stat">${formatDuration(getSessionDuration(behaviorLog))}</div><p class="muted small">${interactionCount} interaction event${interactionCount === 1 ? "" : "s"}; ${teleports} teleportation event${teleports === 1 ? "" : "s"}.</p>${testSessionNote}</article>
+          <article class="card metric-card"><p class="section-label">Session duration</p><div class="stat">${formatDuration(sessionDuration)}</div><p class="muted small">${interactionCount} interaction event${interactionCount === 1 ? "" : "s"}; ${teleports} teleportation event${teleports === 1 ? "" : "s"}.</p>${testSessionNote}</article>
         </div>
 
         <div class="grid">
@@ -139,12 +140,16 @@
           <article class="card full">
             <p class="section-label">Behavioral interaction log</p>
             <h2>Exploration timeline</h2>
-            ${behaviorLog.length ? `<ol class="timeline">${behaviorLog.map((event) => {
+            ${behaviorLog.length ? `
+              <p class="muted small">${behaviorLog.length} total event${behaviorLog.length === 1 ? "" : "s"} recorded, including ${interactionCount} interaction event${interactionCount === 1 ? "" : "s"}.</p>
+              <button id="timeline-toggle" class="timeline-toggle secondary" type="button" onclick="toggleTimeline()">Show timeline (${behaviorLog.length} events)</button>
+              <div id="timeline-details" class="timeline-details hidden">
+              <ol class="timeline">${behaviorLog.map((event) => {
               const elapsed = event.elapsed_time ?? event.elapsed ?? 0;
               const cardId = event.card_id || event.cardId;
               const detail = cardId ? CARD_LABELS[cardId] || cardId : event.position ? `Position (${event.position.x}, ${event.position.z})` : event.user_action || "";
               return `<li><span class="tag">${formatDuration(elapsed)}</span> <strong>${EVENT_LABELS[event.type] || event.type}</strong>${detail ? `<div class="muted small">${detail}</div>` : ""}</li>`;
-            }).join("")}</ol>` : `<p class="muted">${emptyLog}</p>`}
+            }).join("")}</ol></div>` : `<p class="muted">${emptyLog}</p>`}
           </article>
 
           <article class="card full">
@@ -180,6 +185,15 @@
       anchor.download = `vr-embodied-learning-${payload.condition}-${Date.now()}.json`;
       anchor.click();
       URL.revokeObjectURL(url);
+    }
+
+    function toggleTimeline() {
+      const details = document.getElementById("timeline-details");
+      const button = document.getElementById("timeline-toggle");
+      if (!details || !button) return;
+      const willShow = details.classList.contains("hidden");
+      details.classList.toggle("hidden", !willShow);
+      button.textContent = willShow ? "Hide timeline" : `Show timeline (${details.querySelectorAll("li").length} events)`;
     }
 
     function resetData() {

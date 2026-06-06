@@ -78,10 +78,18 @@
     instructionTimer = setTimeout(() => toast.classList.add("hidden"), 7000);
   }
 
+  function setGazeProgress(progress) {
+    const indicator = document.getElementById("gaze-progress");
+    if (!indicator) return;
+    const bounded = Math.max(0, Math.min(Number(progress) || 0, 1));
+    indicator.style.setProperty("--gaze-progress", `${bounded * 360}deg`);
+    indicator.classList.toggle("active", bounded > 0);
+  }
+
   function initialize() {
     document.getElementById("knowledge-panel-close")?.addEventListener("click", closeCard);
     showInstructions();
   }
 
-  window.VRSceneUI = { initialize, updateProgress, openCard, closeCard, showInstructions };
+  window.VRSceneUI = { initialize, updateProgress, openCard, closeCard, showInstructions, setGazeProgress };
 }());
