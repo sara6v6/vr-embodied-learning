@@ -1,199 +1,183 @@
-# VR Embodied Learning Scene
-**A WebVR prototype exploring embodied cognition and presence in immersive learning environments**
+# VR Embodied Learning Prototype
 
-🔗 **Live Demo:** https://sara6v6.github.io/vr-embodied-learning/  
-📋 **Survey:** https://sara6v6.github.io/vr-embodied-learning/survey.html  
-📊 **Results:** https://sara6v6.github.io/vr-embodied-learning/results.html  
+![Status: Prototype](https://img.shields.io/badge/status-prototype-555555)
+![Platform: Browser / WebVR](https://img.shields.io/badge/platform-browser%20%2F%20WebVR-1d4ed8)
+![Framework: A-Frame](https://img.shields.io/badge/framework-A--Frame-ef2d5e)
+![Data: LocalStorage only](https://img.shields.io/badge/data-localStorage%20only-16794a)
+![License: MIT](https://img.shields.io/badge/license-MIT-black)
 
----
+## Abstract
 
-## Overview
+This project is a browser-based WebVR research prototype investigating how embodied interaction and virtual presence may shape cognitive engagement and perceived learning. It compares an embodied VR condition with a control condition and records self-report responses and behavioral interaction logs for exploratory analysis. The prototype is intended as a proof of concept for future HCI and VR learning research, not as a completed empirical study.
 
-This prototype is an exploratory research practice investigating how **body ownership illusion** and **sense of presence** in virtual reality may influence learner engagement and cognitive investment.
+The prototype is a solo-developed research practice artifact. It does not claim statistically valid findings, validated outcomes, or completed human-subjects research. Its purpose is to make a future pilot study or controlled evaluation concrete, inspectable, and browser-accessible.
 
-The design is informed by research on VR presence and embodied cognition, particularly work related to:
-- Presence and immersion in virtual environments
-- Embodied cognition and its role in knowledge construction
-- Interactive affordances in VR learning spaces
+## Live Demo
 
----
-## Research Framework
-```mermaid
-flowchart LR
-    A["📚 Theory\nEmbodied Cognition\nWilson 2002 · Varela 1991"]
-    B["🏫 VR Environment\nImmersive Classroom\nA-Frame WebVR"]
-    C["👁️ Interaction\nGaze · Teleport · Avatar"]
-    D["📊 Measure\nLikert Survey · Log"]
-    E["📈 Results\nPresence · Engagement"]
+- GitHub Pages demo: https://sara6v6.github.io/vr-embodied-learning/
+- Embodied VR condition: https://sara6v6.github.io/vr-embodied-learning/index.html
+- Control condition: https://sara6v6.github.io/vr-embodied-learning/index-control.html
+- Self-report instrument: https://sara6v6.github.io/vr-embodied-learning/survey.html
+- Local results dashboard: https://sara6v6.github.io/vr-embodied-learning/results.html
 
-    A -->|Concept| B
-    B -->|Context| C
-    C -->|Behavior| D
-    D -->|Data| E
+To deploy: open repository **Settings → Pages**, select the `main` branch and root folder, then access each HTML file directly.
 
-    classDef theory fill:#eff6ff,color:#1e3a8a,stroke:#2563eb,stroke-width:2px
-    classDef design fill:#dcfce7,color:#065f46,stroke:#16a34a,stroke-width:2px
-    classDef interact fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px
-    classDef assess fill:#fffbeb,color:#78350f,stroke:#d97706,stroke-width:2px
-    classDef output fill:#fee2e2,color:#7f1d1d,stroke:#dc2626,stroke-width:2px
+## Research Positioning
 
-    class A theory
-    class B design
-    class C interact
-    class D assess
-    class E output
+The prototype sits at the intersection of HCI, immersive learning, embodied cognition, and human augmentation. It explores how spatial presence, body ownership illusion, agency, and embodied interaction may relate to cognitive engagement and perceived learning in a virtual learning environment.
+
+The embodied VR condition includes first-person avatar hands attached to the camera, gaze-directed reach feedback, and a brief hand response during teleportation. These affordances are designed to provide minimal body ownership and agency cues; they do not demonstrate that a body ownership illusion occurs. The control condition preserves the virtual classroom and core learning topics while removing those embodied affordances. This supports an exploratory between-condition comparison without intentionally degrading the control experience.
+
+### Exploratory Research Questions
+
+- **RQ1:** Does embodied avatar interaction increase exploratory behavior in a VR learning environment compared with a control condition without embodied affordances?
+- **RQ2:** Do spatial presence and body ownership illusion correlate with self-reported cognitive engagement and perceived learning?
+- **RQ3:** What behavioral interaction patterns emerge during embodied versus non-embodied VR exploration?
+
+These are exploratory research questions. The prototype is designed for small-scale pilot testing and design reflection, not for statistically powered empirical claims.
+
+## Reviewer Flow
+
+1. Read the project overview.
+2. Complete the pre-survey and choose a condition.
+3. Explore either the embodied VR condition or control condition.
+4. Return to the self-report instrument and complete the post-survey.
+5. View the local results dashboard.
+6. Export anonymous JSON for offline descriptive analysis.
+
+## Prototype Components
+
+| Component | Research purpose |
+| --- | --- |
+| Embodied VR condition | Uses camera-attached first-person hands, gaze-directed reach feedback, and teleport hand feedback as minimal body ownership and agency cues |
+| Control condition | Presents the same core topics without avatar hands, gaze activation, or teleportation |
+| Self-report instrument | Records adapted exploratory ratings for presence, body ownership, agency, engagement, and perceived learning |
+| Behavioral interaction log | Records condition, timestamps, elapsed time, card events, and teleportation events |
+| Local results dashboard | Summarizes one locally stored session without making inferential claims |
+| `analysis.py` | Loads exported JSON and reports descriptive statistics; plots are optional |
+
+## Measures and Variables
+
+| Construct or measure | Type | Prototype representation |
+| --- | --- | --- |
+| Condition | Independent/context | Embodied VR condition or control condition |
+| Spatial presence | Self-report | Adapted single exploratory item |
+| Body ownership illusion | Self-report | Adapted single exploratory item |
+| Agency | Self-report | Adapted single exploratory item |
+| Cognitive engagement | Self-report | Adapted single exploratory item |
+| Emotional engagement | Self-report | Adapted single exploratory item |
+| Perceived learning | Self-report | Adapted single exploratory item |
+| Exploratory behavior | Behavioral | Card visits, sequence, duration, and teleportation count |
+
+The self-report instrument is adapted for exploratory prototype evaluation and is not a full validated psychometric instrument.
+
+## Local Data and Analysis
+
+All responses and behavioral interaction logs remain in local browser storage. Nothing is transmitted to a server, and no personally identifiable information is requested. The results dashboard exports a JSON file that can be inspected or analyzed offline.
+
+```bash
+python analysis.py exported_session.json
+python analysis.py data/*.json
 ```
----
-## User Flow
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as User
-    participant S as survey.html
-    participant V as VR Scene
-    participant R as results.html
 
-    Note over S: Pre-learning measurement
-    U->>S: Complete pre-survey (2 items)
-
-    Note over V: Transition to immersive learning
-    S->>V: Enter VR classroom
-    V->>V: Gaze interaction — unlock knowledge cards
-    V->>V: Teleportation — explore classroom space
-    V->>V: Avatar hands — support embodied presence
-
-    Note over S: Post-learning measurement
-    V-->>S: Return to survey
-    S->>S: Complete post-survey (5 items)
-
-    Note over R: Data processing and visualization
-    S->>R: Submit responses — auto redirect
-    R->>R: Render progress and score charts
-```
-
-## Demo Features
-
-| Feature | Description |
-|---------|-------------|
-| Immersive Classroom | Virtual classroom with blackboard, desks, chairs, and windows |
-| Gaze Interaction | Look at a colored sphere for 2 seconds to reveal a knowledge card |
-| Teleportation | Click anywhere on the floor to move to that position |
-| Avatar Hands | Virtual hands visible in first-person view (body ownership) |
-| 5 Knowledge Cards | Embodied Cognition · Presence · Body Ownership · Engagement · Research Design |
-| Ambient Audio | Background audio loop to enhance sense of presence |
-| Learning Progress | localStorage-based tracking of visited cards, displayed on HUD |
-| Pre/Post Survey | 7-point Likert scale measuring presence and learning engagement |
-| Results Dashboard | Chart.js visualization of survey scores and exploration data |
-| Control Condition | Separate scene (index-control.html) with click-based card reading and no avatar hands |
-
----
-
-## Research Background
-
-The prototype is inspired by studies on **tele-existence**, **pseudo-embodiment**, and **presence engineering** in XR environments. The central question guiding this exploration:
-
-> *How does the sense of "being there" and bodily presence in a virtual space alter the quality of cognitive engagement during learning tasks?*
-
-This question connects educational technology with affective computing and human augmentation — the core intersection I aim to investigate at the graduate level.
-
----
-
-## Methodology
-
-### Research Questions
-1. Does immersive VR presence (measured by IPQ) correlate with increased learning engagement (measured by AEQ)?
-2. Does body ownership illusion (avatar hands) contribute to the sense of spatial presence?
-
-### Variables
-| Variable | Type | Measurement |
-|----------|------|-------------|
-| Spatial Presence | Dependent | IPQ items (Q3) — 7-point Likert |
-| Body Ownership | Dependent | BOI-adapted (Q4) — 7-point Likert |
-| Cognitive Engagement | Dependent | AEQ (Q5) — 7-point Likert |
-| Emotional Engagement | Dependent | AEQ (Q6) — 7-point Likert |
-| VR Familiarity | Control | Self-report (Q1) — 7-point Likert |
-| Card Exploration | Behavioral | Count of cards visited (0–5) |
-| Exploration Sequence | Behavioral | Timestamp log per card_open event |
-| Session Duration | Behavioral | Total time in VR scene (seconds) |
-| Teleportation Count | Behavioral | Number of floor-click teleports |
-
-### Data Collection
-- **Survey data**: Pre/post Likert responses stored in `localStorage` (`vr-survey-data`)
-- **Behavioral data**: Timestamped event log stored in `localStorage` (`vr-behavior-log`)
-  - Event types: `session_start`, `card_open`, `card_close`, `teleport`, `session_end`
-- **Export**: All data exportable as structured JSON from results.html
-
-### Validated Scales Used
-- **IPQ** — Igroup Presence Questionnaire (Schubert et al., 2001)
-- **BOI Scale** — Body Ownership Illusion (Longo et al., 2008, adapted)
-- **AEQ** — Academic Engagement Questionnaire (Fredricks et al., 2004)
-
-### Quasi-Experimental Design
-Two-condition quasi-experimental design. Participants are assigned to either the Experimental condition (index.html: gaze interaction, teleportation, avatar hands) or the Control condition (index-control.html: click-to-read, no embodied affordances). Both groups complete identical pre/post surveys. Behavioral data is logged throughout each session and exportable as JSON for offline analysis via analysis.py.
-
----
+`analysis.py` handles missing values, groups sessions by condition, and prints descriptive statistics. If `matplotlib` is installed, it can also save a simple descriptive plot. See [docs/data-schema.md](docs/data-schema.md) for the expected structure and localStorage keys.
 
 ## Technology
 
-- **[A-Frame](https://aframe.io/)** (WebVR framework, v1.5.0)
-- **Chart.js** (data visualization)
-- **Python / matplotlib** (offline statistical analysis)
-- localStorage API (client-side progress and survey data)
-- Runs directly in browser — no installation required
-- Mobile compatible (Google Cardboard supported)
+- A-Frame 1.5.0
+- JavaScript and browser localStorage
+- Chart.js 4.4.0
+- Python standard library, with optional matplotlib
+- Static HTML/CSS suitable for GitHub Pages
 
----
+No backend, login, tracking, or server-side data collection is used.
 
-## How to Experience
+## Privacy and Ethics
 
-1. Open **survey.html** and complete the pre-survey
-2. Click the link to enter the VR scene
-3. Use **WASD** to move, **mouse** to look around
-4. **Gaze** at colored spheres for 2 seconds to open knowledge cards
-5. **Click** on the floor to teleport
-6. Return to survey.html and complete the post-survey
-7. View your results in **results.html**
+- No personally identifiable information is collected.
+- Survey responses and behavioral interaction logs are stored locally in the browser.
+- No data is transmitted to a server.
+- Exported JSON should be anonymized and handled responsibly before analysis.
+- This is not a formal human-subjects study.
+- Future formal studies would require appropriate consent procedures and institutional review where applicable.
+- The prototype is suitable for design exploration and pilot testing, not generalizable conclusions.
 
----
-
-## Repository Structure
-
-```  
-vr-embodied-learning/  
-├── index.html          — Experimental condition: embodied VR scene  
-├── index-control.html  — Control condition: text-based VR scene  
-├── survey.html         — Pre/post Likert survey (shared)  
-├── results.html        — Data visualization dashboard  
-├── analysis.py         — Offline statistical analysis (Python)  
-└── README.md  
-```
-
-
----
-
-## Author
-
-**Xiala Dilimulati**  
-B.S. Educational Technology, Shanghai Normal University  
-Research interest: VR presence, embodied learning, human-computer interaction
-
----
+See [docs/ethics-and-limitations.md](docs/ethics-and-limitations.md) for additional detail.
 
 ## Limitations
 
-This prototype is an exploratory proof-of-concept rather than a controlled empirical study. Several limitations should be noted:
+- A small sample size is expected during pilot use.
+- Browser-based WebVR may produce lower presence than standalone head-mounted displays.
+- Measures are self-report items only; no physiological data is collected.
+- The experience is single-session and has no longitudinal component.
+- Demand characteristics and self-selection bias are possible.
+- No formal ethics review has been conducted at this stage.
+- localStorage content can be lost when browser data is cleared.
+- Survey items are adapted and do not form a complete validated psychometric instrument.
 
-- **Sample size**: Currently designed for informal self-report; no formal participant recruitment has been conducted. Findings from the survey data should not be generalised.
-- **Single-item presence measure**: Spatial presence (Q3) is captured by one adapted IPQ item rather than the full scale, which reduces construct validity.
-- **Self-selection bias**: Participants access the scene voluntarily via a public link, introducing self-selection effects that may inflate engagement scores.
-- **localStorage dependency**: Survey and behavioral data are stored client-side and are not persisted across devices or browser sessions; data loss is possible if the browser cache is cleared.
-- **WebVR constraints**: The scene runs in a standard browser without a dedicated VR headset, limiting immersion compared to head-mounted display conditions studied in the presence literature.
-- **No inter-rater reliability**: Knowledge card content and survey item wording were designed by a single researcher and have not undergone expert review or pilot validation.
+These limitations are stated as research transparency. They define what a future controlled study would need to improve.
 
-These limitations are acknowledged as inherent to a solo-developed, browser-based prototype and represent directions for refinement in future work.
+## Documentation
 
----
+- [Research design](docs/research-design.md)
+- [User flow](docs/user-flow.md)
+- [Local data schema](docs/data-schema.md)
+- [Ethics and limitations](docs/ethics-and-limitations.md)
 
-## Acknowledgements
+## Screenshots
 
-Built with [A-Frame](https://aframe.io/) by Mozilla and [Chart.js](https://www.chartjs.org/). Concept developed as part of graduate school application research exploration.
+Real screenshots have not yet been added.
+
+- **VR scene:** placeholder for a real capture of the embodied VR condition
+- **Survey flow:** placeholder for a real capture of the pre/post self-report instrument
+- **Results dashboard:** placeholder for a real capture using an actual local session
+
+Empty screenshot and figure directories are retained at `assets/screenshots/` and `assets/figures/`.
+
+## Repository Structure
+
+```text
+vr-embodied-learning/
+├── index.html
+├── index-control.html
+├── survey.html
+├── results.html
+├── analysis.py
+├── assets/
+│   ├── css/research-ui.css
+│   ├── js/research-storage.js
+│   ├── screenshots/
+│   └── figures/
+└── docs/
+```
+
+## Author Note
+
+- **Developer:** Xiala Dilimulati
+- **Background:** B.S. Educational Technology, Shanghai Normal University
+- **Research interest:** VR presence, embodied cognition, human augmentation, HCI, and learning technology
+- **Status:** undergraduate solo research prototype, 2025
+
+## Portfolio Summary
+
+**Title:** VR Embodied Learning Prototype
+
+**One-sentence summary:** A browser-based WebVR research prototype exploring how embodied interaction, spatial presence, and body ownership may shape cognitive engagement and perceived learning.
+
+**My contribution:** Concept design, WebVR implementation, survey flow, behavioral logging, results dashboard, and exploratory analysis script.
+
+**Technologies:** A-Frame, JavaScript, localStorage, Chart.js, Python
+
+**Status:** Exploratory prototype for graduate research preparation.
+
+## References
+
+The design is theoretically grounded by foundational work including:
+
+- Botvinick, M., & Cohen, J. (1998). Rubber hand illusion and body ownership.
+- Witmer, B. G., & Singer, M. J. (1998). Presence in virtual environments.
+- Wilson, M. (2002). Embodied cognition.
+- Dede, C. (2009). Immersive interfaces for engagement and learning.
+- Slater, M. (2009). Place illusion and plausibility illusion in immersive virtual environments.
+
+These references provide foundational context rather than a complete literature review. Recent literature on VR learning, embodiment, and human augmentation should be reviewed and added before formal research submission.

@@ -1,404 +1,226 @@
+#!/usr/bin/env python3
 """
-analysis.py
-VR Embodied Learning — Research Data Analysis
-Reads exported JSON from results.html and produces descriptive statistics + plots.
+Offline descriptive analysis for exported VR Embodied Learning sessions.
+
+Developer: Xiala Dilimulati
+Prototype status: undergraduate solo research prototype, 2025
+
+Expected input:
+    JSON files exported from results.html. Missing survey values and behavioral
+    fields are allowed. The script does not perform inferential statistics.
 
 Usage:
-    python analysis.py data_experimental.json data_control.json
+    python analysis.py exported_session.json
+    python analysis.py data/*.json
+    python analysis.py --plot data/*.json
+
+When --plot is requested and matplotlib is available, a descriptive condition
+summary is saved to assets/figures/descriptive-condition-summary.png.
 """
 
+from __future__ import annotations
+
+import argparse
 import json
-import sys
-import os
 import statistics
-import datetime
-
-# ── Optional: matplotlib for charts ──────────────────────────
-try:
-    import matplotlib.pyplot as plt
-    import matplotlib.patches as mpatches
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-    print("[Warning] matplotlib not installed. Run: pip install matplotlib")
-    print("          Statistics will still print to terminal.\n")
+import sys
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Iterable
 
 
-# ══════════════════════════════════════════════════════════════
-# 1. Load JSON data
-# ══════════════════════════════════════════════════════════════
-
-def load_json(filepath):
-    """Load a single exported JSON file from results.html."""
-    if not os.path.exists(filepath):
-        print(f"[Error] File not found: {filepath}")
-        sys.exit(1)
-    with open(filepath, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-
-def extract_survey_scores(data):
-    """
-    Extract post-survey scores (Q3–Q7) from exported JSON.
-    Returns a dict: { 'q3': int, 'q4': int, ..., 'q7': int }
-    """
-    survey = data.get('surveyData', {})
-    scores = {}
-    for key in ['q3', 'q4', 'q5', 'q6', 'q7']:
-        val = survey.get(key)
-        if val is not None:
-            scores[key] = int(val)
-    return scores
-
-
-def extract_behavior_stats(data):
-    """
-    Extract behavioral metrics from behavior log.
-    Returns: cards_visited (int), session_duration_seconds (int)
-    """
-    log = data.get('behaviorLog', [])
-    cards_visited = data.get('progressData', {})
-    cards_count = len(cards_visited)
-
-    # Calculate session duration from log
-    start_time = None
-    end_time = None
-    for event in log:
-        t = event.get('timestamp')
-        if t:
-            dt = datetime.datetime.fromisoformat(t)
-            if start_time is None or dt < start_time:
-                start_time = dt
-            if end_time is None or dt > end_time:
-                end_time = dt
-
-    duration = 0
-    if start_time and end_time:
-        duration = int((end_time - start_time).total_seconds())
-
-    return cards_count, duration
-
-
-# ══════════════════════════════════════════════════════════════
-# 2. Descriptive statistics
-# ══════════════════════════════════════════════════════════════
-
-SCALE_LABELS = {
-    'q3': 'Spatial Presence (IPQ)',
-    'q4': 'Body Ownership (BOI)',
-    'q5': 'Cognitive Engagement (AEQ)',
-    'q6': 'Emotional Engagement (AEQ)',
-    'q7': 'Embodied Interaction',
-}
-
-# Subscale groupings
-SUBSCALES = {
-    'Presence':   ['q3', 'q4'],
-    'Engagement': ['q5', 'q6', 'q7'],
+CONSTRUCTS = {
+    "q1": "VR familiarity",
+    "q2": "Baseline cognitive interest",
+    "q3": "Spatial presence",
+    "q4": "Body ownership illusion",
+    "q5": "Agency",
+    "q6": "Cognitive engagement",
+    "q7": "Emotional engagement",
+    "q8": "Perceived learning",
+    "q9": "Embodied interaction",
 }
 
 
-def describe(scores_list, label=""):
-    """Print descriptive stats for a list of numeric values."""
-    if not scores_list:
-        print(f"  {label}: No data")
-        return {}
-    n = len(scores_list)
-    mean = statistics.mean(scores_list)
-    sd = statistics.stdev(scores_list) if n > 1 else 0.0
-    minimum = min(scores_list)
-    maximum = max(scores_list)
-    print(f"  {label}: M={mean:.2f}, SD={sd:.2f}, min={minimum}, max={maximum}, N={n}")
-    return {'mean': mean, 'sd': sd, 'min': minimum, 'max': maximum, 'n': n}
+def load_session(path: Path) -> dict[str, Any] | None:
+    """Load one exported session, reporting readable errors without aborting."""
+    try:
+        with path.open(encoding="utf-8") as file:
+            payload = json.load(file)
+    except (OSError, json.JSONDecodeError) as error:
+        print(f"[skip] {path}: {error}", file=sys.stderr)
+        return None
+    if not isinstance(payload, dict):
+        print(f"[skip] {path}: top-level JSON value must be an object", file=sys.stderr)
+        return None
+    payload["_source_file"] = str(path)
+    return payload
 
 
-def compute_subscale_mean(scores_dict, keys):
-    """Average scores across a set of question keys."""
-    vals = [scores_dict[k] for k in keys if k in scores_dict]
-    return statistics.mean(vals) if vals else None
+def numeric(value: Any) -> float | None:
+    """Return a finite numeric value or None."""
+    if isinstance(value, bool):
+        return None
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return None
+    return result if result == result and abs(result) != float("inf") else None
 
 
-def analyze_group(label, filepaths):
-    """
-    Analyze one group (experimental or control).
-    filepaths: list of JSON file paths (one per participant).
-    Returns aggregated results dict.
-    """
-    print(f"\n{'='*52}")
-    print(f"  GROUP: {label}  (N={len(filepaths)})")
-    print(f"{'='*52}")
+def event_elapsed(event: dict[str, Any]) -> float:
+    """Read current or legacy elapsed-time fields."""
+    return numeric(event.get("elapsed_time", event.get("elapsed"))) or 0.0
 
-    all_scores = {k: [] for k in SCALE_LABELS}
-    all_presence = []
-    all_engagement = []
-    all_cards = []
-    all_durations = []
 
-    for fp in filepaths:
-        data = load_json(fp)
-        scores = extract_survey_scores(data)
-        cards, duration = extract_behavior_stats(data)
+def event_card_id(event: dict[str, Any]) -> str | None:
+    """Read current or legacy card identifier fields."""
+    value = event.get("card_id", event.get("cardId"))
+    return str(value) if value else None
 
-        for k in SCALE_LABELS:
-            if k in scores:
-                all_scores[k].append(scores[k])
 
-        p_mean = compute_subscale_mean(scores, SUBSCALES['Presence'])
-        e_mean = compute_subscale_mean(scores, SUBSCALES['Engagement'])
-        if p_mean: all_presence.append(p_mean)
-        if e_mean: all_engagement.append(e_mean)
+def infer_condition(session: dict[str, Any]) -> str:
+    """Infer condition from export metadata, survey, or event log."""
+    survey = session.get("surveyData") or {}
+    explicit = session.get("condition") or survey.get("condition")
+    if explicit in {"embodied", "control"}:
+        return explicit
+    for event in session.get("behaviorLog") or []:
+        if event.get("condition") in {"embodied", "control"}:
+            return event["condition"]
+    return "unspecified"
 
-        all_cards.append(cards)
-        all_durations.append(duration)
 
-    print("\n  Individual Scale Items (1–7):")
-    item_stats = {}
-    for k, lbl in SCALE_LABELS.items():
-        item_stats[k] = describe(all_scores[k], lbl)
-
-    print("\n  Subscale Composites:")
-    presence_stat   = describe(all_presence,   "Presence composite   (Q3+Q4 avg)")
-    engagement_stat = describe(all_engagement, "Engagement composite (Q5+Q6+Q7 avg)")
-
-    print("\n  Behavioral Metrics:")
-    describe(all_cards,     "Cards visited (0–5)")
-    describe(all_durations, "Session duration (seconds)")
+def summarize_session(session: dict[str, Any]) -> dict[str, Any]:
+    """Extract descriptive survey and behavioral metrics from one session."""
+    survey = session.get("surveyData") or {}
+    progress = session.get("progressData") or {}
+    events = session.get("behaviorLog") or []
+    card_opens = [event_card_id(event) for event in events if event.get("type") == "card_open"]
+    card_opens = [card_id for card_id in card_opens if card_id]
+    elapsed_values = [event_elapsed(event) for event in events]
+    ended = [event for event in events if event.get("type") == "session_end"]
+    explicit_duration = numeric(ended[-1].get("session_duration")) if ended else None
 
     return {
-        'label': label,
-        'item_stats': item_stats,
-        'presence_mean': statistics.mean(all_presence) if all_presence else 0,
-        'engagement_mean': statistics.mean(all_engagement) if all_engagement else 0,
-        'all_scores': all_scores,
-        'all_presence': all_presence,
-        'all_engagement': all_engagement,
+        "source": session.get("_source_file", "unknown"),
+        "condition": infer_condition(session),
+        "survey": {key: numeric(survey.get(key)) for key in CONSTRUCTS if numeric(survey.get(key)) is not None},
+        "unique_cards": len(progress) if isinstance(progress, dict) else len(set(card_opens)),
+        "card_open_count": len(card_opens),
+        "teleport_count": sum(event.get("type") == "teleport" for event in events),
+        "event_count": len(events),
+        "duration_seconds": explicit_duration if explicit_duration is not None else max(elapsed_values, default=0),
+        "exploration_sequence": card_opens,
     }
 
 
-# ══════════════════════════════════════════════════════════════
-# 3. Charts
-# ══════════════════════════════════════════════════════════════
-
-COLORS = {
-    'experimental': '#4ecdc4',
-    'control':      '#ff6b6b',
-}
-
-
-def plot_item_comparison(exp_stats, ctrl_stats):
-    """Bar chart: per-item mean scores, experimental vs control."""
-    keys = list(SCALE_LABELS.keys())
-    short_labels = ['Q3\nPresence', 'Q4\nBody Own.', 'Q5\nCog.Eng.', 'Q6\nEmo.Eng.', 'Q7\nEmbodied']
-
-    exp_means  = [exp_stats['item_stats'].get(k, {}).get('mean', 0) for k in keys]
-    ctrl_means = [ctrl_stats['item_stats'].get(k, {}).get('mean', 0) for k in keys]
-
-    x = range(len(keys))
-    width = 0.35
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    fig.patch.set_facecolor('#1a1a2e')
-    ax.set_facecolor('#16213e')
-
-    bars1 = ax.bar([i - width/2 for i in x], exp_means,  width, label='Experimental', color=COLORS['experimental'], alpha=0.85)
-    bars2 = ax.bar([i + width/2 for i in x], ctrl_means, width, label='Control',      color=COLORS['control'],      alpha=0.85)
-
-    ax.set_ylim(0, 7.5)
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(short_labels, color='#e0e0e0', fontsize=9)
-    ax.set_ylabel('Mean Score (1–7)', color='#e0e0e0')
-    ax.set_title('Survey Item Scores: Experimental vs Control', color='white', fontsize=13, pad=12)
-    ax.tick_params(colors='#a0aec0')
-    ax.spines['bottom'].set_color('#2d3748')
-    ax.spines['left'].set_color('#2d3748')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.yaxis.label.set_color('#a0aec0')
-    ax.legend(facecolor='#2d3748', labelcolor='white', framealpha=0.8)
-    ax.axhline(4, color='#4a5568', linestyle='--', linewidth=0.8, label='Neutral (4)')
-
-    # Value labels on bars
-    for bar in bars1:
-        h = bar.get_height()
-        if h > 0:
-            ax.text(bar.get_x() + bar.get_width()/2, h + 0.1, f'{h:.1f}',
-                    ha='center', va='bottom', color='#e0e0e0', fontsize=8)
-    for bar in bars2:
-        h = bar.get_height()
-        if h > 0:
-            ax.text(bar.get_x() + bar.get_width()/2, h + 0.1, f'{h:.1f}',
-                    ha='center', va='bottom', color='#e0e0e0', fontsize=8)
-
-    plt.tight_layout()
-    plt.savefig('chart_item_comparison.png', dpi=150, bbox_inches='tight')
-    print("\n[Saved] chart_item_comparison.png")
-    plt.show()
+def describe(values: Iterable[float]) -> str:
+    """Format descriptive statistics while handling empty and single-value sets."""
+    clean = list(values)
+    if not clean:
+        return "no values"
+    mean = statistics.mean(clean)
+    standard_deviation = statistics.stdev(clean) if len(clean) > 1 else 0.0
+    return f"N={len(clean)}, mean={mean:.2f}, SD={standard_deviation:.2f}, range={min(clean):.2f}-{max(clean):.2f}"
 
 
-def plot_subscale_comparison(exp_stats, ctrl_stats):
-    """Simple grouped bar: Presence composite vs Engagement composite."""
-    labels = ['Presence\n(Q3+Q4)', 'Engagement\n(Q5+Q6+Q7)']
-    exp_vals  = [exp_stats['presence_mean'],  exp_stats['engagement_mean']]
-    ctrl_vals = [ctrl_stats['presence_mean'], ctrl_stats['engagement_mean']]
-
-    x = [0, 1]
-    width = 0.3
-
-    fig, ax = plt.subplots(figsize=(6, 5))
-    fig.patch.set_facecolor('#1a1a2e')
-    ax.set_facecolor('#16213e')
-
-    ax.bar([i - width/2 for i in x], exp_vals,  width, label='Experimental', color=COLORS['experimental'], alpha=0.85)
-    ax.bar([i + width/2 for i in x], ctrl_vals, width, label='Control',      color=COLORS['control'],      alpha=0.85)
-
-    ax.set_ylim(0, 7.5)
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels, color='#e0e0e0')
-    ax.set_ylabel('Composite Mean (1–7)', color='#a0aec0')
-    ax.set_title('Subscale Composites: Experimental vs Control', color='white', fontsize=12, pad=10)
-    ax.tick_params(colors='#a0aec0')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_color('#2d3748')
-    ax.spines['left'].set_color('#2d3748')
-    ax.axhline(4, color='#4a5568', linestyle='--', linewidth=0.8)
-    ax.legend(facecolor='#2d3748', labelcolor='white', framealpha=0.8)
-
-    plt.tight_layout()
-    plt.savefig('chart_subscale_comparison.png', dpi=150, bbox_inches='tight')
-    print("[Saved] chart_subscale_comparison.png")
-    plt.show()
+def print_session(summary: dict[str, Any]) -> None:
+    """Print one readable session summary."""
+    print(f"\nSession: {summary['source']}")
+    print(f"  Condition: {summary['condition']}")
+    print(f"  Duration: {summary['duration_seconds']:.0f} seconds")
+    print(f"  Unique cards visited: {summary['unique_cards']}")
+    print(f"  Card-open events: {summary['card_open_count']}")
+    print(f"  Teleportation events: {summary['teleport_count']}")
+    sequence = " -> ".join(summary["exploration_sequence"]) or "none"
+    print(f"  Exploration sequence: {sequence}")
+    print("  Self-report values:")
+    if not summary["survey"]:
+        print("    no values")
+    for key, value in summary["survey"].items():
+        print(f"    {CONSTRUCTS[key]}: {value:g} / 7")
 
 
-def plot_score_distribution(exp_stats, ctrl_stats):
-    """Box plots: distribution of Presence and Engagement composites."""
-    fig, axes = plt.subplots(1, 2, figsize=(8, 5))
-    fig.patch.set_facecolor('#1a1a2e')
+def print_condition_summary(summaries: list[dict[str, Any]]) -> None:
+    """Print descriptive summaries grouped by condition."""
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for summary in summaries:
+        groups[summary["condition"]].append(summary)
 
-    pairs = [
-        ('Presence Composite', exp_stats['all_presence'],   ctrl_stats['all_presence']),
-        ('Engagement Composite', exp_stats['all_engagement'], ctrl_stats['all_engagement']),
-    ]
-
-    for ax, (title, exp_vals, ctrl_vals) in zip(axes, pairs):
-        ax.set_facecolor('#16213e')
-        data_to_plot = []
-        tick_labels = []
-        colors = []
-        if exp_vals:
-            data_to_plot.append(exp_vals)
-            tick_labels.append('Experimental')
-            colors.append(COLORS['experimental'])
-        if ctrl_vals:
-            data_to_plot.append(ctrl_vals)
-            tick_labels.append('Control')
-            colors.append(COLORS['control'])
-
-        if data_to_plot:
-            bp = ax.boxplot(data_to_plot, patch_artist=True, widths=0.4)
-            for patch, color in zip(bp['boxes'], colors):
-                patch.set_facecolor(color)
-                patch.set_alpha(0.7)
-            for element in ['whiskers', 'caps', 'medians']:
-                for item in bp[element]:
-                    item.set_color('white')
-            for flier in bp['fliers']:
-                flier.set_marker('o')
-                flier.set_color('#a0aec0')
-
-        ax.set_ylim(0, 7.5)
-        ax.set_xticklabels(tick_labels, color='#e0e0e0', fontsize=9)
-        ax.set_title(title, color='white', fontsize=10)
-        ax.tick_params(colors='#a0aec0')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_color('#2d3748')
-        ax.spines['left'].set_color('#2d3748')
-        ax.yaxis.label.set_color('#a0aec0')
-
-    fig.suptitle('Score Distributions by Condition', color='white', fontsize=13)
-    plt.tight_layout()
-    plt.savefig('chart_distributions.png', dpi=150, bbox_inches='tight')
-    print("[Saved] chart_distributions.png")
-    plt.show()
+    print("\nCondition-level descriptive summary")
+    print("This output is exploratory and does not establish statistical significance.")
+    for condition, group in sorted(groups.items()):
+        print(f"\n{condition} ({len(group)} session(s))")
+        for metric in ["duration_seconds", "unique_cards", "card_open_count", "teleport_count", "event_count"]:
+            print(f"  {metric.replace('_', ' ')}: {describe(item[metric] for item in group)}")
+        for key, label in CONSTRUCTS.items():
+            values = [item["survey"][key] for item in group if key in item["survey"]]
+            if values:
+                print(f"  {label}: {describe(values)}")
+        sequences = Counter(tuple(item["exploration_sequence"]) for item in group if item["exploration_sequence"])
+        if sequences:
+            common, count = sequences.most_common(1)[0]
+            print(f"  Most common exploration sequence ({count}): {' -> '.join(common)}")
 
 
-# ══════════════════════════════════════════════════════════════
-# 4. Main
-# ══════════════════════════════════════════════════════════════
+def save_plot(summaries: list[dict[str, Any]]) -> None:
+    """Optionally save a compact descriptive plot when matplotlib is available."""
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("\n[plot skipped] matplotlib is not installed. Descriptive text output is complete.")
+        return
 
-def main():
-    print("=" * 52)
-    print("  VR Embodied Learning — Data Analysis")
-    print("=" * 52)
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for summary in summaries:
+        groups[summary["condition"]].append(summary)
 
-    # Accept file arguments: experimental files first, then control
-    # Example: python analysis.py exp1.json exp2.json -- ctrl1.json ctrl2.json
-    # Simple mode: python analysis.py exp.json ctrl.json
-    args = sys.argv[1:]
+    labels = sorted(groups)
+    cards = [statistics.mean(item["unique_cards"] for item in groups[label]) for label in labels]
+    duration = [statistics.mean(item["duration_seconds"] for item in groups[label]) for label in labels]
 
-    if '--' in args:
-        sep = args.index('--')
-        exp_files  = args[:sep]
-        ctrl_files = args[sep+1:]
-    elif len(args) == 2:
-        exp_files  = [args[0]]
-        ctrl_files = [args[1]]
-    elif len(args) == 1:
-        # Single file mode: just analyze one file
-        exp_files  = [args[0]]
-        ctrl_files = []
-    else:
-        print("Usage:")
-        print("  python analysis.py experimental.json control.json")
-        print("  python analysis.py exp1.json exp2.json -- ctrl1.json ctrl2.json")
-        print("  python analysis.py single_file.json")
-        sys.exit(0)
+    figure, axes = plt.subplots(1, 2, figsize=(9, 4))
+    axes[0].bar(labels, cards, color="#1d4ed8")
+    axes[0].set_title("Mean unique cards visited")
+    axes[0].set_ylim(0, 5)
+    axes[1].bar(labels, duration, color="#555555")
+    axes[1].set_title("Mean session duration")
+    axes[1].set_ylabel("Seconds")
+    figure.suptitle("Exploratory descriptive condition summary")
+    figure.tight_layout()
 
-    exp_results  = analyze_group("Experimental (Embodied Interaction)", exp_files)
-
-    if ctrl_files:
-        ctrl_results = analyze_group("Control (Text Reading Only)", ctrl_files)
-
-        print("\n" + "="*52)
-        print("  BETWEEN-GROUP COMPARISON")
-        print("="*52)
-        print(f"  Presence  — Experimental: {exp_results['presence_mean']:.2f}  |  Control: {ctrl_results['presence_mean']:.2f}  |  Δ={exp_results['presence_mean']-ctrl_results['presence_mean']:+.2f}")
-        print(f"  Engagement — Experimental: {exp_results['engagement_mean']:.2f}  |  Control: {ctrl_results['engagement_mean']:.2f}  |  Δ={exp_results['engagement_mean']-ctrl_results['engagement_mean']:+.2f}")
-        print("\n  Note: Formal significance testing (t-test) requires N≥10 per group.")
-        print("        Current output is descriptive only.")
-
-        if HAS_MATPLOTLIB:
-            print("\n  Generating charts...")
-            plot_item_comparison(exp_results, ctrl_results)
-            plot_subscale_comparison(exp_results, ctrl_results)
-            plot_score_distribution(exp_results, ctrl_results)
-    else:
-        print("\n  Single-group mode: no comparison chart generated.")
-        if HAS_MATPLOTLIB and exp_results['all_scores']:
-            # Just plot this group's item means
-            keys = list(SCALE_LABELS.keys())
-            means = [statistics.mean(exp_results['all_scores'][k]) if exp_results['all_scores'][k] else 0 for k in keys]
-            fig, ax = plt.subplots(figsize=(8, 4))
-            fig.patch.set_facecolor('#1a1a2e')
-            ax.set_facecolor('#16213e')
-            bars = ax.bar(range(len(keys)), means, color=COLORS['experimental'], alpha=0.85)
-            ax.set_ylim(0, 7.5)
-            ax.set_xticks(range(len(keys)))
-            ax.set_xticklabels([SCALE_LABELS[k] for k in keys], rotation=15, ha='right', color='#e0e0e0', fontsize=8)
-            ax.set_ylabel('Mean Score (1–7)', color='#a0aec0')
-            ax.set_title('Survey Item Scores', color='white')
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
-            ax.axhline(4, color='#4a5568', linestyle='--', linewidth=0.8)
-            ax.tick_params(colors='#a0aec0')
-            plt.tight_layout()
-            plt.savefig('chart_single_group.png', dpi=150, bbox_inches='tight')
-            print("[Saved] chart_single_group.png")
-            plt.show()
-
-    print("\n  Analysis complete.")
+    output = Path("assets/figures/descriptive-condition-summary.png")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=160)
+    plt.close(figure)
+    print(f"\n[plot saved] {output}")
 
 
-if __name__ == '__main__':
-    main()
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Describe exported VR Embodied Learning JSON sessions.")
+    parser.add_argument("files", nargs="+", type=Path, help="One or more exported JSON files")
+    parser.add_argument("--plot", action="store_true", help="Save an optional descriptive plot")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    sessions = [session for path in args.files if (session := load_session(path)) is not None]
+    if not sessions:
+        print("No readable exported sessions were provided.", file=sys.stderr)
+        return 1
+
+    summaries = [summarize_session(session) for session in sessions]
+    print("VR Embodied Learning Prototype: offline descriptive analysis")
+    print("No inferential or validated-result claims are produced.")
+    for summary in summaries:
+        print_session(summary)
+    print_condition_summary(summaries)
+    if args.plot:
+        save_plot(summaries)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

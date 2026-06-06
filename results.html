@@ -1,505 +1,195 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-  <meta charset="utf-8">  
-  <title>Results | VR Embodied Learning</title>  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>  
-  <style>  
-    * { box-sizing: border-box; margin: 0; padding: 0; }  
-
-    body {  
-      font-family: 'Helvetica Neue', Arial, sans-serif;  
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);  
-      min-height: 100vh;  
-      color: #e0e0e0;  
-      padding: 40px 20px;  
-    }  
-
-    .container { max-width: 900px; margin: 0 auto; }  
-
-    h1 {  
-      text-align: center;  
-      font-size: 1.8rem;  
-      color: #fff;  
-      margin-bottom: 8px;  
-    }  
-
-    .subtitle {  
-      text-align: center;  
-      color: #718096;  
-      font-size: 0.9rem;  
-      margin-bottom: 48px;  
-    }  
-
-    .grid {  
-      display: grid;  
-      grid-template-columns: 1fr 1fr;  
-      gap: 24px;  
-      margin-bottom: 24px;  
-    }  
-
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }  
-
-    .card {  
-      background: rgba(255,255,255,0.05);  
-      border: 1px solid rgba(255,255,255,0.08);  
-      border-radius: 14px;  
-      padding: 28px;  
-    }  
-
-    .card.full { grid-column: 1 / -1; }  
-
-    .card-title {  
-      font-size: 0.72rem;  
-      letter-spacing: 0.12em;  
-      text-transform: uppercase;  
-      color: #63b3ed;  
-      margin-bottom: 20px;  
-    }  
-
-    .stat-big {  
-      font-size: 3rem;  
-      font-weight: 700;  
-      color: #fff;  
-      line-height: 1;  
-    }  
-
-    .stat-label { font-size: 0.82rem; color: #718096; margin-top: 6px; }  
-
-    canvas { max-height: 280px; }  
-
-    .card-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }  
-
-    .card-item { display: flex; align-items: center; gap: 12px; font-size: 0.88rem; }  
-
-    .card-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }  
-
-    .card-name { flex: 1; color: #e2e8f0; }  
-
-    .card-status {  
-      font-size: 0.75rem;  
-      padding: 3px 10px;  
-      border-radius: 12px;  
-      font-weight: 600;  
-    }  
-
-    .visited { background: rgba(56,161,105,0.2); color: #68d391; }  
-    .not-visited { background: rgba(113,128,150,0.2); color: #718096; }  
-
-    .score-bar-wrap { margin-bottom: 14px; }  
-
-    .score-bar-label {  
-      display: flex;  
-      justify-content: space-between;  
-      font-size: 0.82rem;  
-      color: #a0aec0;  
-      margin-bottom: 6px;  
-    }  
-
-    .score-bar-bg { height: 8px; background: #2d3748; border-radius: 4px; overflow: hidden; }  
-
-    .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }  
-
-    /* 时间线样式 */  
-    .timeline { position: relative; padding-left: 20px; }  
-
-    .timeline-item {  
-      position: relative;  
-      padding: 8px 0 8px 20px;  
-      border-left: 2px solid #2d3748;  
-      font-size: 0.82rem;  
-    }  
-
-    .timeline-item::before {  
-      content: '';  
-      position: absolute;  
-      left: -6px;  
-      top: 14px;  
-      width: 10px;  
-      height: 10px;  
-      border-radius: 50%;  
-      background: #63b3ed;  
-    }  
-
-    .timeline-item.card_open::before { background: #68d391; }  
-    .timeline-item.teleport::before  { background: #f59e0b; }  
-    .timeline-item.session_end::before { background: #fc8181; }  
-
-    .timeline-time { color: #63b3ed; font-size: 0.75rem; margin-right: 8px; }  
-    .timeline-label { color: #e2e8f0; }  
-    .timeline-detail { color: #718096; font-size: 0.75rem; margin-top: 2px; }  
-
-    /* 按钮组 */  
-    .btn-group {  
-      display: flex;  
-      gap: 12px;  
-      justify-content: center;  
-      margin-top: 32px;  
-      flex-wrap: wrap;  
-    }  
-
-    .btn-export {  
-      padding: 10px 28px;  
-      background: rgba(99,179,237,0.15);  
-      border: 1px solid rgba(99,179,237,0.3);  
-      color: #63b3ed;  
-      border-radius: 8px;  
-      cursor: pointer;  
-      font-size: 0.85rem;  
-      transition: background 0.2s;  
-    }  
-
-    .btn-export:hover { background: rgba(99,179,237,0.25); }  
-
-    .btn-reset {  
-      padding: 10px 28px;  
-      background: rgba(229,62,62,0.15);  
-      border: 1px solid rgba(229,62,62,0.3);  
-      color: #fc8181;  
-      border-radius: 8px;  
-      cursor: pointer;  
-      font-size: 0.85rem;  
-      transition: background 0.2s;  
-    }  
-
-    .btn-reset:hover { background: rgba(229,62,62,0.25); }  
-
-    .no-data { text-align: center; color: #718096; padding: 48px 0; }  
-    .no-data a { color: #63b3ed; }  
-
-    .nav-links { text-align: center; margin-top: 36px; }  
-    .nav-links a {  
-      color: #63b3ed;  
-      text-decoration: none;  
-      margin: 0 16px;  
-      font-size: 0.88rem;  
-    }  
-
-    .ref-note {  
-      font-size: 0.72rem;  
-      color: #4a5568;  
-      margin-top: 16px;  
-      font-style: italic;  
-    }  
-  </style>  
-</head>  
-<body>  
-
-<div class="container">  
-
-  <h1>Research Results</h1>  
-  <p class="subtitle">VR Embodied Learning Prototype · Behavioral & Survey Data Dashboard · sara6v6</p>  
-
-  <div id="main-content"></div>  
-
-  <div class="nav-links">  
-    <a href="index.html">← VR Scene</a>  
-    <a href="survey.html">← Back to Survey</a>  
-  </div>  
-
-</div>  
-
-<script>  
-const CARDS = [  
-  { id: 'card-1', name: '① Embodied Cognition', color: '#ff6b6b' },  
-  { id: 'card-2', name: '② VR Presence',        color: '#4ecdc4' },  
-  { id: 'card-3', name: '③ Body Ownership',      color: '#a855f7' },  
-  { id: 'card-4', name: '④ Learning Engagement', color: '#f59e0b' },  
-  { id: 'card-5', name: '⑤ Research Design',     color: '#10b981' },  
-];  
-
-const SURVEY_LABELS = {  
-  q1: 'VR Familiarity (Pre)',  
-  q2: 'Learning Motivation (Pre)',  
-  q3: 'Spatial Presence (IPQ)',  
-  q4: 'Body Ownership (BOI)',  
-  q5: 'Cognitive Engagement (AEQ)',  
-  q6: 'Emotional Engagement (AEQ)',  
-  q7: 'Embodied Interaction Understanding',  
-};  
-
-const EVENT_LABELS = {  
-  session_start: 'Session started',  
-  session_end:   'Session ended',  
-  card_open:     'Card opened',  
-  card_close:    'Card closed',  
-  teleport:      'Teleported',  
-};  
-
-function formatElapsed(sec) {  
-  if (sec < 60) return `${sec}s`;  
-  return `${Math.floor(sec/60)}m ${sec%60}s`;  
-}  
-
-function render() {  
-  const progressData = JSON.parse(localStorage.getItem('vr-learning-progress') || '{}');  
-  const surveyData   = JSON.parse(localStorage.getItem('vr-survey-data') || '{}');  
-  const behaviorLog  = JSON.parse(localStorage.getItem('vr-behavior-log') || '[]');  
-  const container    = document.getElementById('main-content');  
-
-  const visitedCount = Object.keys(progressData).length;  
-  const hasSurvey    = Object.keys(surveyData).length > 0;  
-  const hasBehavior  = behaviorLog.length > 0;  
-
-  if (visitedCount === 0 && !hasSurvey && !hasBehavior) {  
-    container.innerHTML = `  
-      <div class="no-data">  
-        <p style="font-size:1.1rem;color:#e2e8f0;margin-bottom:12px">No data yet</p>  
-        <p>Please <a href="survey.html">complete the pre-survey</a>, then explore the VR scene and submit the post-survey.</p>  
-      </div>`;  
-    return;  
-  }  
-
-  const visitedIds = Object.keys(progressData);  
-
-  // 后测均值  
-  const postKeys = ['q3','q4','q5','q6','q7'];  
-  const postVals = postKeys.map(k => surveyData[k] || null).filter(v => v !== null);  
-  const postMean = postVals.length  
-    ? (postVals.reduce((a,b) => a+b, 0) / postVals.length).toFixed(2)  
-    : 'N/A';  
-
-  // 总沉浸时长（从行为日志中读取）  
-  const sessionEnd = behaviorLog.find(e => e.type === 'session_end');  
-  const totalDuration = sessionEnd ? formatElapsed(sessionEnd.totalDuration) : 'In progress';  
-
-  // 传送次数  
-  const teleportCount = behaviorLog.filter(e => e.type === 'teleport').length;  
-
-  container.innerHTML = `  
-    <div class="grid">  
-
-      <!-- 统计：进度 -->  
-      <div class="card">  
-        <div class="card-title">Learning Progress</div>  
-        <div class="stat-big">${visitedCount}<span style="font-size:1.2rem;color:#718096">/5</span></div>  
-        <div class="stat-label">Knowledge cards explored</div>  
-        <div style="margin-top:20px;height:6px;background:#2d3748;border-radius:3px">  
-          <div style="height:100%;width:${visitedCount/5*100}%;background:linear-gradient(90deg,#38a169,#68d391);border-radius:3px;transition:width 1s"></div>  
-        </div>  
-        <div style="margin-top:16px;display:flex;gap:24px;">  
-          <div>  
-            <div style="font-size:1.4rem;font-weight:700;color:#f59e0b">${teleportCount}</div>  
-            <div style="font-size:0.75rem;color:#718096">Teleports</div>  
-          </div>  
-          <div>  
-            <div style="font-size:1.4rem;font-weight:700;color:#4ecdc4">${totalDuration}</div>  
-            <div style="font-size:0.75rem;color:#718096">Session duration</div>  
-          </div>  
-        </div>  
-      </div>  
-
-      <!-- 统计：问卷均值 -->  
-      <div class="card">  
-        <div class="card-title">Post-Survey Average Score</div>  
-        <div class="stat-big">${postMean}<span style="font-size:1rem;color:#718096"> / 7</span></div>  
-        <div class="stat-label">Presence + Engagement composite mean</div>  
-        ${hasSurvey ? `<div style="margin-top:12px;font-size:0.78rem;color:#718096;line-height:1.8">  
-          Pre-survey: ${surveyData['pre-timestamp'] ? new Date(surveyData['pre-timestamp']).toLocaleString() : 'N/A'}<br>  
-          Post-survey: ${surveyData['post-timestamp'] ? new Date(surveyData['post-timestamp']).toLocaleString() : 'N/A'}  
-        </div>` : ''}  
-        <p class="ref-note">Scales adapted from IPQ (Schubert et al., 2001) &amp; AEQ (Fredricks et al., 2004)</p>  
-      </div>  
-
-      <!-- 卡片访问状态 -->  
-      <div class="card">  
-        <div class="card-title">Card Exploration · Visit Status</div>  
-        <ul class="card-list">  
-          ${CARDS.map(c => {  
-            const visitEvent = behaviorLog.find(e => e.type === 'card_open' && e.cardId === c.id);  
-            const timeStr = visitEvent ? `at ${visitEvent.elapsed}s` : '';  
-            return `  
-            <li class="card-item">  
-              <span class="card-dot" style="background:${c.color}"></span>  
-              <span class="card-name">${c.name}</span>  
-              <span style="font-size:0.72rem;color:#4a5568;margin-right:4px">${timeStr}</span>  
-              <span class="card-status ${visitedIds.includes(c.id) ? 'visited' : 'not-visited'}">  
-                ${visitedIds.includes(c.id) ? '✓ Visited' : 'Not visited'}  
-              </span>  
-            </li>`;  
-          }).join('')}  
-        </ul>  
-      </div>  
-
-      <!-- 各维度得分柱状图 -->  
-      <div class="card">  
-        <div class="card-title">Survey Scores · Per Dimension</div>  
-        <canvas id="survey-chart"></canvas>  
-      </div>  
-
-      <!-- 探索时间线 -->  
-      ${hasBehavior ? `  
-      <div class="card full">  
-        <div class="card-title">Exploration Timeline · Behavioral Log</div>  
-        <canvas id="timeline-chart" style="max-height:180px;margin-bottom:20px"></canvas>  
-        <div class="timeline">  
-          ${behaviorLog.slice(0, 20).map(e => `  
-            <div class="timeline-item ${e.type}">  
-              <span class="timeline-time">${formatElapsed(e.elapsed || 0)}</span>  
-              <span class="timeline-label">${EVENT_LABELS[e.type] || e.type}</span>  
-              ${e.cardId ? `<div class="timeline-detail">→ ${CARDS.find(c=>c.id===e.cardId)?.name || e.cardId}</div>` : ''}  
-              ${e.position ? `<div class="timeline-detail">→ position (${e.position.x}, ${e.position.z})</div>` : ''}  
-            </div>  
-          `).join('')}  
-          ${behaviorLog.length > 20 ? `<div style="color:#718096;font-size:0.75rem;padding:8px 0 0 20px">... and ${behaviorLog.length - 20} more events</div>` : ''}  
-        </div>  
-      </div>` : ''}  
-
-      <!-- 前后测对比条形图 -->  
-      ${hasSurvey && surveyData.q1 ? `  
-      <div class="card full">  
-        <div class="card-title">Score Breakdown · All Items</div>  
-        ${Object.keys(SURVEY_LABELS).map(k => {  
-          const val = surveyData[k];  
-          if (!val) return '';  
-          const pct = (val/7)*100;  
-          const colors = {  
-            q1:'#63b3ed', q2:'#63b3ed',  
-            q3:'#ff6b6b', q4:'#a855f7',  
-            q5:'#f59e0b', q6:'#10b981', q7:'#4ecdc4'  
-          };  
-          const phase = ['q1','q2'].includes(k) ? 'PRE' : 'POST';  
-          return `  
-            <div class="score-bar-wrap">  
-              <div class="score-bar-label">  
-                <span><span style="font-size:0.65rem;color:#4a5568;margin-right:6px">${phase}</span>${SURVEY_LABELS[k]}</span>  
-                <span style="color:#fff;font-weight:600">${val} / 7</span>  
-              </div>  
-              <div class="score-bar-bg">  
-                <div class="score-bar-fill" style="width:${pct}%;background:${colors[k]||'#63b3ed'}"></div>  
-              </div>  
-            </div>`;  
-        }).join('')}  
-        <p class="ref-note">IPQ = Igroup Presence Questionnaire · BOI = Body Ownership Illusion Scale · AEQ = Academic Engagement Questionnaire</p>  
-      </div>` : ''}  
-
-    </div>  
-
-    <div class="btn-group">  
-      <button class="btn-export" onclick="exportData()">⬇ Export Data (JSON)</button>  
-      <button class="btn-reset" onclick="resetData()">Reset All Data</button>  
-    </div>  
-  `;  
-
-  // 渲染维度得分柱状图  
-  const surveyKeys = postKeys.filter(k => surveyData[k]);  
-  if (surveyKeys.length > 0) {  
-    const ctx = document.getElementById('survey-chart').getContext('2d');  
-    new Chart(ctx, {  
-      type: 'bar',  
-      data: {  
-        labels: surveyKeys.map(k => SURVEY_LABELS[k].replace(' (IPQ)','').replace(' (BOI)','').replace(' (AEQ)','')),  
-        datasets: [{  
-          label: 'Score (max 7)',  
-          data: surveyKeys.map(k => surveyData[k]),  
-          backgroundColor: ['#ff6b6b88','#a855f788','#f59e0b88','#10b98188','#4ecdc488'],  
-          borderColor:     ['#ff6b6b',  '#a855f7',  '#f59e0b',  '#10b981',  '#4ecdc4'],  
-          borderWidth: 2,  
-          borderRadius: 6,  
-        }]  
-      },  
-      options: {  
-        responsive: true,  
-        scales: {  
-          y: {  
-            min: 0, max: 7,  
-            ticks: { color: '#718096', stepSize: 1 },  
-            grid: { color: 'rgba(255,255,255,0.05)' }  
-          },  
-          x: {  
-            ticks: { color: '#a0aec0', font: { size: 10 } },  
-            grid: { display: false }  
-          }  
-        },  
-        plugins: { legend: { display: false } }  
-      }  
-    });  
-  }  
-
-  // 渲染时间线散点图（卡片开启事件）  
-  const cardEvents = JSON.parse(localStorage.getItem('vr-behavior-log') || '[]')  
-    .filter(e => e.type === 'card_open');  
-
-  if (cardEvents.length > 0 && document.getElementById('timeline-chart')) {  
-    const tlCtx = document.getElementById('timeline-chart').getContext('2d');  
-    const cardColors = { 'card-1':'#ff6b6b','card-2':'#4ecdc4','card-3':'#a855f7','card-4':'#f59e0b','card-5':'#10b981' };  
-
-    new Chart(tlCtx, {  
-      type: 'scatter',  
-      data: {  
-        datasets: CARDS.map(c => {  
-          const events = cardEvents.filter(e => e.cardId === c.id);  
-          return {  
-            label: c.name,  
-            data: events.map(e => ({ x: e.elapsed, y: parseInt(c.id.split('-')[1]) })),  
-            backgroundColor: c.color,  
-            pointRadius: 10,  
-            pointHoverRadius: 13,  
-          };  
-        })  
-      },  
-      options: {  
-        responsive: true,  
-        scales: {  
-          x: {  
-            title: { display: true, text: 'Elapsed time (seconds)', color: '#718096' },  
-            ticks: { color: '#718096' },  
-            grid: { color: 'rgba(255,255,255,0.05)' }  
-          },  
-          y: {  
-            min: 0, max: 6,  
-            ticks: {  
-              color: '#718096',  
-              stepSize: 1,  
-              callback: v => CARDS[v-1]?.name.split(' ')[1] || ''  
-            },  
-            grid: { color: 'rgba(255,255,255,0.05)' }  
-          }  
-        },  
-        plugins: {  
-          legend: { display: false },  
-          tooltip: {  
-            callbacks: {  
-              label: ctx => `${CARDS[ctx.raw.y-1]?.name} at ${ctx.raw.x}s`  
-            }  
-          }  
-        }  
-      }  
-    });  
-  }  
-}  
-
-// ─── 导出 JSON ────────────────────────────────────────────────  
-function exportData() {  
-  const exportPayload = {  
-    exportedAt: new Date().toISOString(),  
-    participantId: 'P-' + Math.random().toString(36).substr(2,6).toUpperCase(),  
-    surveyData:    JSON.parse(localStorage.getItem('vr-survey-data') || '{}'),  
-    progressData:  JSON.parse(localStorage.getItem('vr-learning-progress') || '{}'),  
-    behaviorLog:   JSON.parse(localStorage.getItem('vr-behavior-log') || '[]'),  
-  };  
-
-  const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });  
-  const url  = URL.createObjectURL(blob);  
-  const a    = document.createElement('a');  
-  a.href     = url;  
-  a.download = `vr-learning-data-${Date.now()}.json`;  
-  a.click();  
-  URL.revokeObjectURL(url);  
-}  
-
-function resetData() {  
-  if (confirm('Are you sure you want to clear all experiment data?')) {  
-    localStorage.removeItem('vr-learning-progress');  
-    localStorage.removeItem('vr-survey-data');  
-    localStorage.removeItem('vr-behavior-log');  
-    render();  
-  }  
-}  
-
-render();  
-</script>  
-
-</body>  
-</html>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Results Dashboard | VR Embodied Learning Prototype</title>
+  <meta name="description" content="Local exploratory dashboard for survey responses and behavioral interaction logs.">
+  <link rel="stylesheet" href="assets/css/research-ui.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="assets/js/research-storage.js"></script>
+</head>
+<body>
+  <main class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="README.md">VR Embodied Learning Prototype</a>
+      <nav aria-label="Project navigation">
+        <a href="survey.html">Survey</a>
+        <a href="index.html">Embodied condition</a>
+        <a href="index-control.html">Control condition</a>
+        <a href="results.html">Results dashboard</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Local exploratory dashboard</p>
+      <h1>Session Results</h1>
+      <p class="lede">This dashboard summarizes the selected condition, self-report instrument values, and behavioral interaction log stored in this browser.</p>
+      <div class="notice">Nothing is sent to a server. Exported JSON can be analyzed offline with <code>analysis.py</code>. This view supports exploratory reflection and should not be interpreted as formal statistical inference.</div>
+      <div class="button-row">
+        <button onclick="exportData()">Export anonymous JSON ↓</button>
+        <button class="danger" onclick="resetData()">Reset local data</button>
+      </div>
+      <p class="muted small">Exports only local browser session data.</p>
+    </section>
+
+    <section id="dashboard"></section>
+  </main>
+
+  <script>
+    /**
+     * Local results dashboard for the VR Embodied Learning Prototype.
+     * Developer: Xiala Dilimulati, 2025.
+     * Reads condition-specific behavioral logs and survey values from localStorage.
+     */
+    const CARD_LABELS = {
+      "card-1": "Embodied cognition",
+      "card-2": "Spatial presence",
+      "card-3": "Body ownership illusion",
+      "card-4": "Cognitive engagement",
+      "card-5": "Research design"
+    };
+
+    const SURVEY_CONSTRUCTS = {
+      q1: "VR familiarity",
+      q2: "Baseline cognitive interest",
+      q3: "Spatial presence",
+      q4: "Body ownership illusion",
+      q5: "Agency",
+      q6: "Cognitive engagement",
+      q7: "Emotional engagement",
+      q8: "Perceived learning",
+      q9: "Embodied interaction"
+    };
+
+    const EVENT_LABELS = {
+      session_start: "Session started",
+      card_open: "Knowledge card opened",
+      card_close: "Knowledge card closed",
+      teleport: "Teleported",
+      session_end: "Session ended"
+    };
+
+    function formatDuration(seconds) {
+      const value = Number(seconds) || 0;
+      return value < 60 ? `${value}s` : `${Math.floor(value / 60)}m ${value % 60}s`;
+    }
+
+    function getSessionDuration(log) {
+      const ended = [...log].reverse().find((event) => event.type === "session_end");
+      if (ended?.elapsed_time !== undefined) return ended.elapsed_time;
+      if (ended?.elapsed !== undefined) return ended.elapsed;
+      return log.reduce((maximum, event) => Math.max(maximum, Number(event.elapsed_time ?? event.elapsed ?? 0)), 0);
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[character]));
+    }
+
+    function render() {
+      const condition = ResearchStorage.getSelectedCondition();
+      const { conditionLabel, progressData, behaviorLog } = ResearchStorage.getConditionData(condition);
+      const surveyData = ResearchStorage.read(ResearchStorage.KEYS.survey, {});
+      const visitedIds = Object.keys(progressData);
+      const teleports = behaviorLog.filter((event) => event.type === "teleport").length;
+      const cardSequence = behaviorLog.filter((event) => event.type === "card_open").map((event) => event.card_id || event.cardId).filter(Boolean);
+      const surveyEntries = Object.entries(SURVEY_CONSTRUCTS).filter(([key]) => Number.isFinite(Number(surveyData[key])));
+      const dashboard = document.getElementById("dashboard");
+      const interactionCount = behaviorLog.filter((event) => !["session_start", "session_end"].includes(event.type)).length;
+      const testSessionNote = teleports > 20 || interactionCount > 60
+        ? `<div class="metric-note">This session may reflect developer testing or repeated interaction.</div>`
+        : "";
+      const emptyLog = "No local interaction log found. Complete a condition session first.";
+      const exportPreview = ResearchStorage.buildExportPayload(condition);
+      exportPreview.behaviorLog = exportPreview.behaviorLog.slice(0, 3);
+
+      dashboard.innerHTML = `
+        <div class="grid three">
+          <article class="card metric-card ${condition}"><p class="section-label">Condition</p><div class="stat" style="font-size:1.45rem">${conditionLabel}</div><p class="muted small">Selected for this local session.</p></article>
+          <article class="card metric-card"><p class="section-label">Visited cards</p><div class="stat">${visitedIds.length}<span class="muted" style="font-size:1rem"> / 5</span></div><p class="muted small">Unique knowledge cards opened.</p></article>
+          <article class="card metric-card"><p class="section-label">Session duration</p><div class="stat">${formatDuration(getSessionDuration(behaviorLog))}</div><p class="muted small">${interactionCount} interaction event${interactionCount === 1 ? "" : "s"}; ${teleports} teleportation event${teleports === 1 ? "" : "s"}.</p>${testSessionNote}</article>
+        </div>
+
+        <div class="grid">
+          <article class="card">
+            <p class="section-label">Behavioral metrics</p>
+            <h2>Exploration summary</h2>
+            <ul class="metric-list">
+              <li class="metric-row"><span>Condition</span><strong>${conditionLabel}</strong></li>
+              <li class="metric-row"><span>Behavioral events</span><strong>${behaviorLog.length}</strong></li>
+              <li class="metric-row"><span>Unique cards visited</span><strong>${visitedIds.length}</strong></li>
+              <li class="metric-row"><span>Card-open events</span><strong>${cardSequence.length}</strong></li>
+              <li class="metric-row"><span>Teleportation events</span><strong>${teleports}</strong></li>
+            </ul>
+          </article>
+          <article class="card">
+            <p class="section-label">Exploration sequence</p>
+            <h2>Knowledge-card order</h2>
+            ${cardSequence.length ? `<ol class="flow-list">${cardSequence.map((id, index) => `<li>${index + 1}. ${CARD_LABELS[id] || id}</li>`).join("")}</ol>` : `<p class="muted">${emptyLog}</p>`}
+          </article>
+
+          <article class="card full">
+            <p class="section-label">Self-report instrument</p>
+            <h2>Responses by construct</h2>
+            ${surveyEntries.length ? `<canvas id="survey-chart" aria-label="Survey response chart"></canvas>` : `<p class="muted">No survey responses are currently stored.</p>`}
+          </article>
+
+          <article class="card full">
+            <p class="section-label">Behavioral interaction log</p>
+            <h2>Exploration timeline</h2>
+            ${behaviorLog.length ? `<ol class="timeline">${behaviorLog.map((event) => {
+              const elapsed = event.elapsed_time ?? event.elapsed ?? 0;
+              const cardId = event.card_id || event.cardId;
+              const detail = cardId ? CARD_LABELS[cardId] || cardId : event.position ? `Position (${event.position.x}, ${event.position.z})` : event.user_action || "";
+              return `<li><span class="tag">${formatDuration(elapsed)}</span> <strong>${EVENT_LABELS[event.type] || event.type}</strong>${detail ? `<div class="muted small">${detail}</div>` : ""}</li>`;
+            }).join("")}</ol>` : `<p class="muted">${emptyLog}</p>`}
+          </article>
+
+          <article class="card full">
+            <p class="section-label">Export summary</p>
+            <h2>Anonymous JSON structure</h2>
+            <p class="muted small">Preview includes the selected condition, survey values, progress, and the first three behavioral events. The export button downloads the complete local session.</p>
+            <pre class="json-preview">${escapeHTML(JSON.stringify(exportPreview, null, 2))}</pre>
+          </article>
+        </div>`;
+
+      if (surveyEntries.length && window.Chart) {
+        new Chart(document.getElementById("survey-chart"), {
+          type: "bar",
+          data: {
+            labels: surveyEntries.map(([, label]) => label),
+            datasets: [{ data: surveyEntries.map(([key]) => Number(surveyData[key])), backgroundColor: "#1d4ed8" }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { min: 0, max: 7, ticks: { stepSize: 1 } } },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+    }
+
+    function exportData() {
+      const payload = ResearchStorage.buildExportPayload();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `vr-embodied-learning-${payload.condition}-${Date.now()}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetData() {
+      if (confirm("Reset all locally stored survey responses, progress, and behavioral interaction logs?")) {
+        ResearchStorage.resetAll();
+        render();
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
