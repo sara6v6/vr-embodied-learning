@@ -78,6 +78,27 @@
     instructionTimer = setTimeout(() => toast.classList.add("hidden"), 7000);
   }
 
+  function closeHelpPanels(exceptId) {
+    document.querySelectorAll(".scene-help-panel").forEach((panel) => {
+      if (panel.id !== exceptId) panel.classList.add("hidden");
+    });
+    document.querySelectorAll(".scene-tool-button").forEach((button) => {
+      if (button.getAttribute("aria-controls") !== exceptId) button.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function togglePanel(panelId, button) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const willOpen = panel.classList.contains("hidden");
+    closeHelpPanels(willOpen ? panelId : undefined);
+    panel.classList.toggle("hidden", !willOpen);
+    if (button) {
+      button.setAttribute("aria-controls", panelId);
+      button.setAttribute("aria-expanded", String(willOpen));
+    }
+  }
+
   function setGazeProgress(progress) {
     const indicator = document.getElementById("gaze-progress");
     if (!indicator) return;
@@ -88,8 +109,11 @@
 
   function initialize() {
     document.getElementById("knowledge-panel-close")?.addEventListener("click", closeCard);
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".scene-help-panel, .scene-tool-button")) closeHelpPanels();
+    });
     showInstructions();
   }
 
-  window.VRSceneUI = { initialize, updateProgress, openCard, closeCard, showInstructions, setGazeProgress };
+  window.VRSceneUI = { initialize, updateProgress, openCard, closeCard, showInstructions, togglePanel, setGazeProgress };
 }());

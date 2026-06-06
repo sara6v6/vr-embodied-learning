@@ -16,9 +16,10 @@
 
 ### Embodied VR Condition
 
-- Gaze at a sphere for two seconds to open or close a knowledge card.
-- Click the floor to teleport.
-- Use WASD to move on desktop.
+- Drag the mouse to look around on desktop.
+- Use WASD for precise movement through the classroom.
+- Hold the center gaze cursor on a labeled sphere for two seconds to open a knowledge card.
+- Click the floor for quick teleportation.
 - Camera-attached first-person avatar hands remain in the lower field of view.
 - Gaze dwell produces subtle reach feedback before card activation.
 - Card activation and teleportation produce brief hand feedback to reinforce body-action causality.

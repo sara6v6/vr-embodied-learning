@@ -102,6 +102,56 @@
   backdrop-filter: blur(10px);
 }
 
+.scene-tool-button {
+  position: fixed;
+  z-index: 31;
+  bottom: 16px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: 50%;
+  background: rgba(20, 23, 28, 0.78);
+  color: #fff;
+  cursor: pointer;
+  font: 700 1rem/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  backdrop-filter: blur(10px);
+}
+
+.research-toggle { right: 72px; }
+.controls-toggle { right: 124px; font-size: 18px; }
+
+.scene-tool-button:hover,
+.scene-tool-button:focus-visible,
+.scene-tool-button[aria-expanded="true"] {
+  background: rgba(18, 24, 32, 0.94);
+  border-color: rgba(255, 255, 255, 0.58);
+  outline: none;
+}
+
+.scene-help-panel {
+  position: fixed;
+  z-index: 31;
+  right: 16px;
+  bottom: 70px;
+  width: min(330px, calc(100vw - 32px));
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(18, 24, 32, 0.92);
+  color: #f5f7fa;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.scene-help-panel.hidden { display: none; }
+.scene-help-panel h2 { margin: 0 0 8px; font-size: 1rem; }
+.scene-help-panel p,
+.scene-help-panel li { font-size: 0.82rem; line-height: 1.5; }
+.scene-help-panel p { margin: 0 0 10px; }
+.scene-help-panel p:last-child { margin-bottom: 0; }
+.scene-help-panel ul { margin: 10px 0 0; padding-left: 18px; }
+.scene-help-panel li + li { margin-top: 5px; }
+
 .gaze-progress {
   --gaze-progress: 0deg;
   position: fixed;
@@ -254,4 +304,11 @@
   .knowledge-panel.open { transform: translateY(0); }
   .instruction-toast { left: 16px; transform: none; }
   .instruction-toast.hidden { transform: translateY(12px); }
+  .research-toggle { right: 64px; }
+  .controls-toggle { right: 114px; }
+  .scene-help-panel {
+    right: 12px;
+    bottom: 64px;
+    width: min(330px, calc(100vw - 24px));
+  }
 }

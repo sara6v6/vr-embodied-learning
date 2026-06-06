@@ -19,8 +19,26 @@
     <span class="scene-hud__links"><a href="survey.html">Post-survey</a><a href="results.html">Local results</a></span>
   </div>
 </aside>
-<div id="instruction-toast" class="instruction-toast">Drag = look around · Center circle = gaze cursor · Hold on sphere 2s = open card · Clean click on floor = teleport</div>
-<button id="instruction-toggle" class="instruction-toggle" type="button" aria-label="Show instructions" onclick="VRSceneUI.showInstructions(); event.stopPropagation();">?</button>
+<div id="instruction-toast" class="instruction-toast">Drag = look · WASD = precise movement · Hold gaze on sphere 2s = open card · Click floor = quick teleport</div>
+<button id="research-toggle" class="scene-tool-button research-toggle" type="button" aria-label="Show embodied condition context" aria-controls="research-help-panel" aria-expanded="false" onclick="VRSceneUI.togglePanel('research-help-panel', this); event.stopPropagation();">?</button>
+<button id="controls-toggle" class="scene-tool-button controls-toggle" type="button" aria-label="Show controls" aria-controls="controls-help-panel" aria-expanded="false" onclick="VRSceneUI.togglePanel('controls-help-panel', this); event.stopPropagation();">💡</button>
+<aside id="research-help-panel" class="scene-help-panel hidden" aria-label="Embodied condition context">
+  <h2>Embodied condition</h2>
+  <p>This condition uses camera-attached avatar hands, gaze-directed interaction, and teleportation as minimal body ownership and agency cues.</p>
+  <p>Use the HUD links to complete the post-survey or inspect local results.</p>
+</aside>
+<aside id="controls-help-panel" class="scene-help-panel hidden" aria-label="Controls">
+  <h2>Controls</h2>
+  <p>The small circle at the center of the screen is the gaze cursor.</p>
+  <ul>
+    <li><strong>Drag mouse:</strong> look around</li>
+    <li><strong>WASD keys:</strong> move precisely through the classroom</li>
+    <li><strong>Center circle:</strong> gaze cursor</li>
+    <li><strong>Hold the center circle on a labeled sphere for 2 seconds:</strong> open a knowledge card</li>
+    <li><strong>Click floor:</strong> teleport quickly to that location</li>
+    <li><strong>Use Post-survey when finished</strong></li>
+  </ul>
+</aside>
 <div id="gaze-progress" class="gaze-progress" aria-hidden="true"></div>
 <section id="welcome-overlay" class="welcome-overlay hidden" aria-labelledby="welcome-title">
   <div class="welcome-panel">
@@ -28,8 +46,9 @@
     <p>The small circle at the center of the screen is the gaze cursor.</p>
     <ol>
       <li>Drag to look around.</li>
-      <li>Move the center reticle onto a labeled sphere and hold still for 2 seconds to open a knowledge card.</li>
-      <li>Click the floor to teleport.</li>
+      <li>Use WASD keys for precise movement through the classroom.</li>
+      <li>Hold the center circle on a labeled sphere for 2 seconds to open a knowledge card.</li>
+      <li>Click the floor for quick teleportation.</li>
       <li>When finished, use the Post-survey link.</li>
     </ol>
     <button type="button" onclick="dismissWelcome()">Start exploring</button>
@@ -234,17 +253,10 @@ function teleportHandFeedback() {
 
 function dismissWelcome() {
   document.getElementById('welcome-overlay')?.classList.add('hidden');
-  try { sessionStorage.setItem('vr-embodied-welcome-seen', 'true'); } catch (error) { console.warn(error); }
 }
 
 function initializeWelcome() {
-  try {
-    if (sessionStorage.getItem('vr-embodied-welcome-seen') !== 'true') {
-      document.getElementById('welcome-overlay')?.classList.remove('hidden');
-    }
-  } catch (error) {
-    document.getElementById('welcome-overlay')?.classList.remove('hidden');
-  }
+  document.getElementById('welcome-overlay')?.classList.remove('hidden');
 }
 
 initializeWelcome();

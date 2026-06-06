@@ -26,6 +26,17 @@ The prototype sits at the intersection of HCI, immersive learning, embodied cogn
 
 The embodied VR condition includes first-person avatar hands attached to the camera, gaze-directed reach feedback, and a brief hand response during teleportation. These affordances are designed to provide minimal body ownership and agency cues; they do not demonstrate that a body ownership illusion occurs. The control condition preserves the virtual classroom and core learning topics while removing those embodied affordances. This supports an exploratory between-condition comparison without intentionally degrading the control experience.
 
+Many immersive-learning studies rely on dedicated head-mounted displays and controlled lab setups; this prototype explores whether lightweight browser-based embodied cues can support design reflection around presence, agency, and cognitive engagement.
+
+## Design Rationale
+
+- **Browser-based WebVR:** Supports accessible, installation-free review through GitHub Pages and lightweight prototype iteration without requiring Unity or Unreal.
+- **Gaze interaction:** Approximates attention-directed interaction without requiring VR controllers.
+- **Camera-attached avatar hands:** Provide minimal first-person body ownership and agency cues while remaining lightweight and browser-compatible.
+- **Control-condition affordances:** Removing avatar hands, gaze dwell, and teleportation creates a clearer between-condition comparison with the same learning content.
+
+These are exploratory prototype design choices; they do not demonstrate or prove a full body ownership illusion.
+
 ### Exploratory Research Questions
 
 - **RQ1:** Does embodied avatar interaction increase exploratory behavior in a VR learning environment compared with a control condition without embodied affordances?
@@ -38,10 +49,10 @@ These are exploratory research questions. The prototype is designed for small-sc
 
 1. Read the project overview.
 2. Complete the pre-survey and choose a condition.
-3. Explore either the embodied VR condition or control condition.
-4. Return to the self-report instrument and complete the post-survey.
-5. View the local results dashboard.
-6. Export anonymous JSON for offline descriptive analysis.
+3. On desktop, drag the mouse to look around and use WASD keys for precise movement.
+4. In the embodied condition, hold the center gaze cursor on a labeled sphere for 2 seconds to open a card; click the floor for quick teleportation.
+5. Return to the self-report instrument and complete the post-survey after exploration.
+6. View the local results dashboard and export anonymous JSON for offline descriptive analysis.
 
 ## Prototype Components
 
@@ -160,4 +171,4 @@ The design is theoretically grounded by foundational work including:
 - Dede, C. (2009). Immersive interfaces for engagement and learning. Science, 323(5910), 66–69.
 - Slater, M. (2009). Place illusion and plausibility can lead to realistic behaviour in immersive virtual environments. Philosophical Transactions of the Royal Society B: Biological Sciences, 364(1535), 3549–3557.
 
-These references provide foundational context rather than a complete literature review. Recent literature on VR learning, embodiment, and human augmentation should be reviewed and added before formal research submission.
+These foundational works establish the concepts of presence, embodied cognition, and body ownership. Before formal research submission, recent work after 2018 on immersive learning, embodied interaction, and lightweight WebVR/WebXR evaluation should be reviewed and added.
