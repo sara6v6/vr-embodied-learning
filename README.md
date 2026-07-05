@@ -171,4 +171,4 @@ The design is theoretically grounded by foundational work including:
 - Dede, C. (2009). Immersive interfaces for engagement and learning. Science, 323(5910), 66–69.
 - Slater, M. (2009). Place illusion and plausibility can lead to realistic behaviour in immersive virtual environments. Philosophical Transactions of the Royal Society B: Biological Sciences, 364(1535), 3549–3557.
 
-Future extensions include reviewing recent WebXR and immersive-learning literature, conducting a controlled pilot study with formal consent procedures, and evaluating whether lightweight browser-based embodied cues meaningfully influence presence, agency, and cognitive engagement.
+These foundational works establish the concepts of presence, embodied cognition, and body ownership. Future extensions include reviewing recent WebXR and immersive-learning literature, conducting a controlled pilot study with formal consent procedures, and evaluating whether lightweight browser-based embodied cues meaningfully influence presence, agency, and cognitive engagement.
