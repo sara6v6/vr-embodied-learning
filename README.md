@@ -10,6 +10,8 @@
 
 This project is a browser-based WebVR research prototype investigating how embodied interaction and virtual presence may shape cognitive engagement and perceived learning. It implements a between-condition comparison — an embodied VR condition with camera-attached avatar hands, gaze-directed reach feedback, and teleportation affordances, versus a control condition without these embodied cues — and records self-report ratings and behavioral interaction logs for exploratory analysis. The prototype is a solo-developed proof of concept intended for design reflection and future pilot testing; it does not claim statistically valid findings or completed human-subjects research.
 
+This repository is intended as an academic portfolio artifact demonstrating the author's ability to connect research design, interactive prototyping, local data logging, and reflective analysis.
+
 ## Live Demo
 
 - GitHub Pages demo: https://sara6v6.github.io/vr-embodied-learning/
@@ -17,8 +19,6 @@ This project is a browser-based WebVR research prototype investigating how embod
 - Control condition: https://sara6v6.github.io/vr-embodied-learning/index-control.html
 - Self-report instrument: https://sara6v6.github.io/vr-embodied-learning/survey.html
 - Local results dashboard: https://sara6v6.github.io/vr-embodied-learning/results.html
-
-To deploy: open repository **Settings → Pages**, select the `main` branch and root folder, then access each HTML file directly.
 
 ## Research Positioning
 
@@ -171,4 +171,4 @@ The design is theoretically grounded by foundational work including:
 - Dede, C. (2009). Immersive interfaces for engagement and learning. Science, 323(5910), 66–69.
 - Slater, M. (2009). Place illusion and plausibility can lead to realistic behaviour in immersive virtual environments. Philosophical Transactions of the Royal Society B: Biological Sciences, 364(1535), 3549–3557.
 
-These foundational works establish the concepts of presence, embodied cognition, and body ownership. Before formal research submission, recent work after 2018 on immersive learning, embodied interaction, and lightweight WebVR/WebXR evaluation should be reviewed and added.
+Future extensions include reviewing recent WebXR and immersive-learning literature, conducting a controlled pilot study with formal consent procedures, and evaluating whether lightweight browser-based embodied cues meaningfully influence presence, agency, and cognitive engagement.
